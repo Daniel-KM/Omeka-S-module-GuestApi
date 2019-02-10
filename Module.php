@@ -40,7 +40,7 @@ class Module extends AbstractGenericModule
         $acl = $services->get('Omeka\Acl');
 
         $settings = $services->get('Omeka\Settings');
-        $isApiOpenRegister = $settings->get('guestuser_api_register', false);
+        $isApiOpenRegister = $settings->get('guestuserapi_register', false);
         if ($isApiOpenRegister) {
             $acl->allow(
                 null,

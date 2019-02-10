@@ -107,7 +107,7 @@ class ApiController extends AbstractRestfulController
 
         $site = null;
         $settings = $this->settings();
-        if ($settings->get('guestuser_api_register_site')) {
+        if ($settings->get('guestuserapi_register_site')) {
             if (empty($data['site'])) {
                 return $this->returnError(
                     $this->translate('A site is required to register.') // @translate
@@ -127,7 +127,7 @@ class ApiController extends AbstractRestfulController
             }
         }
 
-        $emailIsValid = $this->settings()->get('guestuser_api_register_email_is_valid');
+        $emailIsValid = $this->settings()->get('guestuserapi_register_email_is_valid');
 
         $userInfo = [];
         $userInfo['o:email'] = $data['email'];
@@ -164,7 +164,7 @@ class ApiController extends AbstractRestfulController
                     );
                 }
 
-                $message = $this->settings()->get('guestuser_api_message_confirm_register')
+                $message = $this->settings()->get('guestuserapi_message_confirm_register')
                     ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
                 return new JsonModel([
                     'status' => Response::STATUS_CODE_200,
@@ -271,10 +271,10 @@ class ApiController extends AbstractRestfulController
         }
 
         if ($emailIsValid) {
-            $message = $this->settings()->get('guestuser_api_message_confirm_register')
+            $message = $this->settings()->get('guestuserapi_message_confirm_register')
                 ?: $this->translate('Thank you for registering. You can now log in and use the library.'); // @translate
         } else {
-            $message = $this->settings()->get('guestuser_api_message_confirm_register')
+            $message = $this->settings()->get('guestuserapi_message_confirm_register')
                 ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
         }
         return new JsonModel([
@@ -361,17 +361,17 @@ class ApiController extends AbstractRestfulController
                 break;
 
             case 'register-email-api':
-                $subject = $settings->get('guestuser_message_confirm_registration_subject_api',
-                    $this->getConfig()['guestuser']['config']['guestuser_message_confirm_registration_subject_api']);
-                $body = $settings->get('guestuser_message_confirm_registration_api',
-                    $this->getConfig()['guestuser']['config']['guestuser_message_confirm_registration_api']);
+                $subject = $settings->get('guestuserapi_message_confirm_registration_subject',
+                    $this->getConfig()['guestuserapi']['config']['guestuserapi_message_confirm_registration_subject']);
+                $body = $settings->get('guestuserapi_message_confirm_registration',
+                    $this->getConfig()['guestuserapi']['config']['guestuserapi_message_confirm_registration']);
                 break;
 
             case 'register-email-api-text':
-                $subject = $settings->get('guestuser_message_confirm_registration_subject_api',
-                    $this->getConfig()['guestuser']['config']['guestuser_message_confirm_registration_subject_api']);
-                $body = $settings->get('guestuser_message_confirm_registration_api_text',
-                    $this->getConfig()['guestuser']['config']['guestuser_message_confirm_registration_api_text']);
+                $subject = $settings->get('guestuserapi_message_confirm_registration_subject',
+                    $this->getConfig()['guestuserapi']['config']['guestuserapi_message_confirm_registration_subject']);
+                $body = $settings->get('guestuserapi_message_confirm_registration_text',
+                    $this->getConfig()['guestuserapi']['config']['guestuserapi_message_confirm_registration_text']);
                 break;
 
                 // Allows to manage derivative modules.
