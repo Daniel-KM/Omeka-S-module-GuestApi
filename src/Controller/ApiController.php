@@ -7,10 +7,13 @@ use GuestUser\Stdlib\PsrMessage;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Entity\User;
 use Omeka\Entity\SitePermission;
+use Omeka\Mvc\Exception;
+use Omeka\View\Model\ApiJsonModel;
 use Zend\Authentication\AuthenticationService;
 use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractRestfulController;
-use Zend\View\Model\JsonModel;
+use Zend\Mvc\MvcEvent;
+use Zend\Stdlib\RequestInterface as Request;
 
 /**
  * Allow to register via api.
@@ -31,6 +34,11 @@ class ApiController extends AbstractRestfulController
      * @var array
      */
     protected $config;
+
+    /**
+     * @var array
+     */
+    protected $viewOptions = [];
 
     protected $defaultRoles = [
         \Omeka\Permissions\Acl::ROLE_RESEARCHER,
@@ -166,10 +174,11 @@ class ApiController extends AbstractRestfulController
 
                 $message = $this->settings()->get('guestuserapi_message_confirm_register')
                     ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
-                return new JsonModel([
+                $result = [
                     'status' => Response::STATUS_CODE_200,
                     'message' => $message,
-                ]);
+                ];
+                return new ApiJsonModel($result, $this->getViewOptions());
             }
 
             return $this->returnError(
@@ -277,10 +286,11 @@ class ApiController extends AbstractRestfulController
             $message = $this->settings()->get('guestuserapi_message_confirm_register')
                 ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
         }
-        return new JsonModel([
+        $result = [
             'status' => Response::STATUS_CODE_200,
             'message' => $message,
-        ]);
+        ];
+        return new ApiJsonModel($result, $this->getViewOptions());
     }
 
     /**
@@ -306,7 +316,7 @@ class ApiController extends AbstractRestfulController
         if (is_array($errors)) {
             $result['errors'] = $errors;
         }
-        return new JsonModel($result);
+        return new ApiJsonModel($result, $this->getViewOptions());
     }
 
     /**
@@ -390,6 +400,161 @@ class ApiController extends AbstractRestfulController
             'subject' => $subject,
             'body'=> $body,
         ];
+    }
+
+    /**
+     * Validate the API request and set global options.
+     *
+     * @param MvcEvent $event
+     * @see \Omeka\Controller\ApiController::onDispatch()
+     */
+    public function onDispatch(MvcEvent $event)
+    {
+        $request = $this->getRequest();
+
+        // Set pretty print.
+        $prettyPrint = $request->getQuery('pretty_print');
+        if (null !== $prettyPrint) {
+            $this->setViewOption('pretty_print', true);
+        }
+
+        // Set the JSONP callback.
+        $callback = $request->getQuery('callback');
+        if (null !== $callback) {
+            $this->setViewOption('callback', $callback);
+        }
+
+        try {
+            // Finish dispatching the request.
+
+            // TODO Action for /api/register: check json or multiform as other.
+            $action = $event->getRouteMatch()->getParam('action', false);
+            if ($action !== 'register') {
+                $this->checkContentType($request);
+            }
+
+            parent::onDispatch($event);
+        } catch (\Exception $e) {
+            $this->logger()->err((string) $e);
+            return $this->getErrorResult($event, $e);
+        }
+    }
+
+    /**
+     * Process post data and call create
+     *
+     * This method is overridden from the AbstractRestfulController to allow
+     * processing of multipart POSTs.
+     *
+     * @param Request $request
+     * @return mixed
+     * @see \Omeka\Controller\ApiController::processPostData()
+     */
+    public function processPostData(Request $request)
+    {
+        $contentType = $request->getHeader('content-type');
+        if ($contentType->match('multipart/form-data')) {
+            $content = $request->getPost('data');
+            $fileData = $request->getFiles()->toArray();
+        } else {
+            $content = $request->getContent();
+            $fileData = [];
+        }
+        $data = $this->jsonDecode($content);
+        return $this->create($data, $fileData);
+    }
+
+    /**
+     * Set a view model option.
+     *
+     * @param string $key
+     * @param mixed $value
+     * @see \Omeka\Controller\ApiController::setViewOption()
+     */
+    public function setViewOption($key, $value)
+    {
+        $this->viewOptions[$key] = $value;
+    }
+
+    /**
+     * Get all view options.
+     *
+     * return array
+     * @see \Omeka\Controller\ApiController::getViewOption()
+     */
+    public function getViewOptions()
+    {
+        return $this->viewOptions;
+    }
+
+
+    /**
+     * Check request content-type header to require JSON for methods with payloads.
+     *
+     * @param Request $request
+     * @throws Exception\UnsupportedMediaTypeException
+     * @see \Omeka\Controller\ApiController::checkContentType()
+     */
+    protected function checkContentType(Request $request)
+    {
+        // Require application/json Content-Type for certain methods.
+        $method = strtolower($request->getMethod());
+        $contentType = $request->getHeader('content-type');
+        if (in_array($method, ['post', 'put', 'patch'])
+            && (
+                !$contentType
+                || !$contentType->match(['application/json', 'multipart/form-data'])
+            )
+        ) {
+            $contentType = $request->getHeader('Content-Type');
+            $errorMessage = sprintf(
+                'Invalid Content-Type header. Expecting "application/json", got "%s".',
+                $contentType ? $contentType->getMediaType() : 'none'
+            );
+
+            throw new Exception\UnsupportedMediaTypeException($errorMessage);
+        }
+    }
+
+    /**
+     * Set an error result to the MvcEvent and return the result.
+     *
+     * @param MvcEvent $event
+     * @param \Exception $error
+     * @see \Omeka\Controller\ApiController::getErrorResult()
+     */
+    protected function getErrorResult(MvcEvent $event, \Exception $error)
+    {
+        $result = new ApiJsonModel(null, $this->getViewOptions());
+        $result->setException($error);
+
+        $event->setResult($result);
+        return $result;
+    }
+
+    /**
+     * Decode a JSON string.
+     *
+     * Override ZF's default to always use json_decode and to add error checking.'
+     *
+     * @param string
+     * @return mixed
+     * @throws Exception\InvalidJsonException on JSON decoding errors or if the
+     * content is a scalar.
+     * @see \Omeka\Controller\ApiController::jsonDecode()
+     */
+    protected function jsonDecode($string)
+    {
+        $content = json_decode($string, (bool) $this->jsonDecodeType);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception\InvalidJsonException('JSON: ' . json_last_error_msg());
+        }
+
+        if (!is_array($content)) {
+            throw new Exception\InvalidJsonException('JSON: Content must be an object or array.');
+        }
+        return $content;
     }
 
     /**
