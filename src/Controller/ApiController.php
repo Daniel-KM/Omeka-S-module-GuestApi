@@ -294,6 +294,34 @@ class ApiController extends AbstractRestfulController
     }
 
     /**
+     * @see \GuestUser\Controller\Site\GuestUserController::meAction()
+     *
+     * @return \Zend\Http\Response|\Zend\View\Model\ViewModel
+     */
+    public function meAction()
+    {
+        // Access rights are managed automatically: only logged guest users can
+        // update their account.
+        // The check of the role is only a security, rights are set in Module.
+        /** @var \Omeka\Entity\User $user */
+        $user = $this->identity();
+        if (!$user || $user->getRole() !== \GuestUser\Permissions\Acl::ROLE_GUEST) {
+            return $this->returnError(
+                $this->translate('Access forbidden.'), // @translate
+                Response::STATUS_CODE_403
+            );
+        }
+
+        $userRepresentation = $this->api()->read('users', $user->getId())->getContent();
+
+        $result = [
+            'status' => Response::STATUS_CODE_200,
+            'me' => $userRepresentation,
+        ];
+        return new ApiJsonModel($result, $this->getViewOptions());
+    }
+
+    /**
      * Check if a user is logged.
      *
      * This method simplifies derivative modules that use the same code.

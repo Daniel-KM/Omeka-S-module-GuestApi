@@ -5,6 +5,8 @@ namespace GuestUserApi;
 require_once dirname(__DIR__) . '/GuestUser/src/Module/AbstractGenericModule.php';
 
 use GuestUser\Module\AbstractGenericModule;
+use Zend\EventManager\Event;
+use Zend\EventManager\SharedEventManagerInterface;
 use Zend\Mvc\MvcEvent;
 
 class Module extends AbstractGenericModule
@@ -69,5 +71,35 @@ class Module extends AbstractGenericModule
                 'me', 'accept-terms',
             ]
         );
+    }
+
+    public function attachListeners(SharedEventManagerInterface $sharedEventManager)
+    {
+        // This filter is used after other ones.
+        $sharedEventManager->attach(
+            \Omeka\Api\Representation\UserRepresentation::class,
+            'rep.resource.json',
+            [$this, 'filterEntityJsonLd'],
+            -100
+        );
+    }
+
+    /**
+     * Remove some properties for the user.
+     *
+     * @param Event $event
+     */
+    public function filterEntityJsonLd(Event $event)
+    {
+        $services = $this->getServiceLocator();
+        /** @var AuthenticationService $authentication */
+        $authentication =  $services->get('Omeka\AuthenticationService');
+        $user = $services->get('Omeka\AuthenticationService')->getIdentity();
+        if ($user && $user->getRole() !== \GuestUser\Permissions\Acl::ROLE_GUEST) {
+            return;
+        }
+        $jsonLd = $event->getParam('jsonLd');
+        unset($jsonLd['o-module-group:group']);
+        $event->setParam('jsonLd', $jsonLd);
     }
 }

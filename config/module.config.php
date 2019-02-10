@@ -21,6 +21,19 @@ return [
         'routes' => [
             'api' => [
                 'child_routes' => [
+                    'guest-user' => [
+                        'type' => \Zend\Router\Http\Segment::class,
+                        'options' => [
+                            'route' => '/user/:action',
+                            'constraints' => [
+                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                            ],
+                            'defaults' => [
+                                'controller' => Controller\ApiController::class,
+                                'action' => 'me',
+                            ],
+                        ],
+                    ],
                     'guest-user-register' => [
                         'type' => \Zend\Router\Http\Literal::class,
                         'options' => [
