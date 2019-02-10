@@ -63,13 +63,10 @@ class Module extends AbstractGenericModule
             );
         }
 
+        // This is an api, so all rest api actions are allowed.
         $acl->allow(
             [\GuestUser\Permissions\Acl::ROLE_GUEST],
-            [\GuestUserApi\Controller\ApiController::class],
-            [
-                'logout', 'update-account', 'update-email', 'update-phone',
-                'me', 'accept-terms',
-            ]
+            [\GuestUserApi\Controller\ApiController::class]
         );
     }
 

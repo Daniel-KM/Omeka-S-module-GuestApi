@@ -24,13 +24,9 @@ return [
                     'guest-user' => [
                         'type' => \Zend\Router\Http\Segment::class,
                         'options' => [
-                            'route' => '/user/:action',
-                            'constraints' => [
-                                'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-                            ],
+                            'route' => '/user[/:id]',
                             'defaults' => [
                                 'controller' => Controller\ApiController::class,
-                                'action' => 'me',
                             ],
                         ],
                     ],

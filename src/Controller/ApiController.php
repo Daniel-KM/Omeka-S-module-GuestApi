@@ -64,9 +64,112 @@ class ApiController extends AbstractRestfulController
         $this->config = $config;
     }
 
+    public function create($data)
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function delete($id)
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function deleteList($data)
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function get($id)
+    {
+        $user = $this->checkUserAndRole($id);
+        if (!$user) {
+            return $this->returnError(
+                $this->translate('Access forbidden.'), // @translate
+                Response::STATUS_CODE_403
+            );
+        }
+
+        $response = $this->api()->read('users', $user->getId());
+        return new ApiJsonModel($response, $this->getViewOptions());
+    }
+
+    public function getList()
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function head($id = null)
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function options()
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function patch($id, $data)
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function replaceList($data)
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function patchList($data)
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function update($id, $data)
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function notFoundAction()
+    {
+        return $this->returnError(
+            $this->translate('Page not found'), // @translate
+            Response::STATUS_CODE_404
+        );
+    }
+
     /**
      * @see \GuestUser\Controller\Site\GuestUserController::registerAction()
      *
+     * @todo Replace registerAction() by create()?
      * @return \Zend\Http\Response|\Zend\View\Model\ViewModel
      */
     public function registerAction()
@@ -294,34 +397,6 @@ class ApiController extends AbstractRestfulController
     }
 
     /**
-     * @see \GuestUser\Controller\Site\GuestUserController::meAction()
-     *
-     * @return \Zend\Http\Response|\Zend\View\Model\ViewModel
-     */
-    public function meAction()
-    {
-        // Access rights are managed automatically: only logged guest users can
-        // update their account.
-        // The check of the role is only a security, rights are set in Module.
-        /** @var \Omeka\Entity\User $user */
-        $user = $this->identity();
-        if (!$user || $user->getRole() !== \GuestUser\Permissions\Acl::ROLE_GUEST) {
-            return $this->returnError(
-                $this->translate('Access forbidden.'), // @translate
-                Response::STATUS_CODE_403
-            );
-        }
-
-        $userRepresentation = $this->api()->read('users', $user->getId())->getContent();
-
-        $result = [
-            'status' => Response::STATUS_CODE_200,
-            'me' => $userRepresentation,
-        ];
-        return new ApiJsonModel($result, $this->getViewOptions());
-    }
-
-    /**
      * Check if a user is logged.
      *
      * This method simplifies derivative modules that use the same code.
@@ -331,6 +406,30 @@ class ApiController extends AbstractRestfulController
     protected function isUserLogged()
     {
         return $this->getAuthenticationService()->hasIdentity();
+    }
+
+    /**
+     * This api is only for guest user, so some checks are done.
+     *
+     * @param string $id
+     * @return \Omeka\Entity\User|null
+     */
+    protected function checkUserAndRole($id)
+    {
+        if ($id !== 'me') {
+            return null;
+        }
+
+        // Access rights are managed automatically: only logged guest users can
+        // update their account.
+        // The check of the role is only a security, rights are set in Module.
+        /** @var \Omeka\Entity\User $user */
+        $user = $this->identity();
+        if (!$user || $user->getRole() !== \GuestUser\Permissions\Acl::ROLE_GUEST) {
+            return null;
+        }
+
+        return $user;
     }
 
     protected function returnError($message, $statusCode = Response::STATUS_CODE_400, array $errors = null)
