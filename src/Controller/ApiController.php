@@ -159,6 +159,16 @@ class ApiController extends AbstractRestfulController
         unset($data['email']);
 
         if (isset($data['o:email'])) {
+            // TODO Currently, the site is required to change the email.
+            $site = $this->userSites($user, true);
+            if (empty($site)) {
+                return $this->returnError(
+                    $this->translate('Email cannot be updated: the user is not related to a site.'), // @translate
+                    Response::STATUS_CODE_400
+                );
+            }
+            $site = $this->api()->read('sites', $site->getId())->getContent();
+            $this->getPluginManager()->get('currentSite')->setSite($site);
             return $this->changeEmail($user, $data);
         }
 
@@ -563,12 +573,14 @@ class ApiController extends AbstractRestfulController
             );
         }
 
+        $site = $this->currentSite();
+
         $guestUserToken = $this->createGuestUserToken($user);
         $message = $this->prepareMessage('update-email', [
             'user_email' => $email,
             'user_name' => $user->getName(),
             'token' => $guestUserToken,
-        ]);
+        ], $site);
         $result = $this->sendEmail($email, $message['subject'], $message['body'], $user->getName());
         if (!$result) {
             $message = new Message($this->translate('An error occurred when the email was sent.')); // @translate
@@ -614,8 +626,8 @@ class ApiController extends AbstractRestfulController
     {
         $settings = $this->settings();
         $site = $site ?: $this->currentSite();
-        if (empty($site)) {
-            throw new \Exception('Missing site.');
+        if ((isset($data['token']) || $settings->get('guestuserapi_register_site')) && empty($site)) {
+            throw new \Exception('Missing site.'); // @translate
         }
         $default = [
             'main_title' => $settings->get('installation_title', 'Omeka S'),
