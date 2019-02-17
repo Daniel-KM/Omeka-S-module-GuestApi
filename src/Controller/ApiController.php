@@ -8,6 +8,7 @@ use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Entity\User;
 use Omeka\Entity\SitePermission;
 use Omeka\Mvc\Exception;
+use Omeka\Stdlib\Message;
 use Omeka\View\Model\ApiJsonModel;
 use Zend\Authentication\AuthenticationService;
 use Zend\Http\Response;
@@ -128,10 +129,52 @@ class ApiController extends AbstractRestfulController
 
     public function patch($id, $data)
     {
-        return $this->returnError(
-            $this->translate('Method Not Allowed'), // @translate
-            Response::STATUS_CODE_405
-        );
+        $user = $this->checkUserAndRole($id);
+        if (!$user) {
+            return $this->returnError(
+                $this->translate('Access forbidden.'), // @translate
+                Response::STATUS_CODE_403
+            );
+        }
+
+        if (empty($data) || !array_filter($data)) {
+            return $this->returnError(
+                $this->translate('Request is empty.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+
+        if (isset($data['password']) || isset($data['new-password'])) {
+            return $this->changePassword($user, $data);
+        }
+
+        if (isset($data['o:email'])) {
+            return $this->changeEmail($user, $data);
+        }
+
+        // For security, keep only the updatable data.
+        $toPatch = array_intersect_key($data, [
+            'o:name' => null,
+            // 'o:email' => null,
+            // 'password' => null,
+            // 'new-password' => null,
+        ]);
+        if (count($data) !== count($toPatch)) {
+            return $this->returnError(
+                $this->translate('Your request contains metadata that cannot be updated.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+
+        if (isset($data['o:name']) && empty($data['o:name'])) {
+            return $this->returnError(
+                $this->translate('The new name is empty.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+
+        $response = $this->api()->update('users', $user->getId(), $toPatch, [], ['isPartial' => true]);
+        return new ApiJsonModel($response, $this->getViewOptions());
     }
 
     public function replaceList($data)
@@ -430,6 +473,108 @@ class ApiController extends AbstractRestfulController
         }
 
         return $user;
+    }
+
+    protected function changePassword(User $user, array $data)
+    {
+        if (count($data) > 2) {
+            return $this->returnError(
+                $this->translate('You cannot update password and another data in the same time.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+        if (empty($data['password'])) {
+            return $this->returnError(
+                $this->translate('Existing password empty.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+        if (empty($data['new-password'])) {
+            return $this->returnError(
+                $this->translate('New password empty.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+        if (strlen($data['new-password']) < 6) {
+            return $this->returnError(
+                $this->translate('New password should have 6 characters or more.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+        if (!$user->verifyPassword($data['password'])) {
+            // Security to avoid batch hack.
+            sleep(1);
+            return $this->returnError(
+                $this->translate('Wrong password.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+
+        $user->setPassword($data['new-password']);
+        $entityManager = $this->getEntityManager();
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        $result = [
+            'status' => Response::STATUS_CODE_200,
+            'message' => $this->translate('Password successfully changed'), // @translate
+        ];
+        return new ApiJsonModel($result, $this->getViewOptions());
+    }
+
+    /**
+     * Update email.
+     *
+     * @todo Factorize with GuestUser.
+     *
+     * @param User $user
+     * @param array $data
+     * @return \Omeka\View\Model\ApiJsonModel
+     */
+    protected function changeEmail(User $user, array $data)
+    {
+        if (count($data) > 1) {
+            return $this->returnError(
+                $this->translate('You cannot update email and another data in the same time.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+        if (empty($data['o:email'])) {
+            return $this->returnError(
+                $this->translate('New email empty.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+        $email = $data['o:email'];
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->returnError(
+                new Message($this->translate('"%1$s" is not an email.'), $email), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+
+        $guestUserToken = $this->createGuestUserToken($user);
+        $message = $this->prepareMessage('update-email', [
+            'user_email' => $email,
+            'user_name' => $user->getName(),
+            'token' => $guestUserToken,
+        ]);
+        $result = $this->sendEmail($email, $message['subject'], $message['body'], $user->getName());
+        if (!$result) {
+            $message = new Message($this->translate('An error occurred when the email was sent.')); // @translate
+            $this->logger()->err('[GuestUserApi] ' . $message);
+            return $this->returnError(
+                $message,
+                Response::STATUS_CODE_500
+            );
+        }
+
+        $message = new Message($this->translate('Check your email "%s" to confirm the change.'), $email); // @translate
+        $result = [
+            'status' => Response::STATUS_CODE_200,
+            'message' => $message,
+        ];
+        return new ApiJsonModel($result, $this->getViewOptions());
     }
 
     protected function returnError($message, $statusCode = Response::STATUS_CODE_400, array $errors = null)
