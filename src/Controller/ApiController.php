@@ -573,6 +573,23 @@ class ApiController extends AbstractRestfulController
             );
         }
 
+        if ($email === $user->getEmail()) {
+            return $this->returnError(
+                new Message($this->translate('The new email is the same than the current one.')), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+
+        $existUser = $this->api()->searchOne('users', ['email' => $email])->getContent();
+        if ($existUser) {
+            // Avoid a hack of the database.
+            sleep(1);
+            return $this->returnError(
+                new Message($this->translate('The email "%s" is not yours.'), $email), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+
         $site = $this->currentSite();
 
         $guestUserToken = $this->createGuestUserToken($user);
