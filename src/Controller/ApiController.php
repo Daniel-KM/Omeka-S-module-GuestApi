@@ -148,6 +148,16 @@ class ApiController extends AbstractRestfulController
             return $this->changePassword($user, $data);
         }
 
+        // By exception, two common metadata can be without prefix.
+        if (isset($data['name'])) {
+            $data['o:name'] = $data['name'];
+        }
+        unset($data['name']);
+        if (isset($data['email'])) {
+            $data['o:email'] = $data['email'];
+        }
+        unset($data['email']);
+
         if (isset($data['o:email'])) {
             return $this->changeEmail($user, $data);
         }
@@ -618,7 +628,7 @@ class ApiController extends AbstractRestfulController
 
         $data += $default;
 
-        if ($data['token']) {
+        if (isset($data['token'])) {
             $data['token'] = $data['token']->getToken();
             $urlOptions = ['force_canonical' => true];
             $urlOptions['query']['token'] = $data['token'];
