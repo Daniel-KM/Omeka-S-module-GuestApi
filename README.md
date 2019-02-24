@@ -1,7 +1,7 @@
 Guest User Api (module for Omeka S)
 ===================================
 
-[Guest User Api ] is a module for [Omeka S] that allows to manage the actions of
+[Guest User Api] is a module for [Omeka S] that allows to manage the actions of
 the module [Guest User] by an api, in particular to register and to update
 profile.
 
