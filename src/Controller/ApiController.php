@@ -144,7 +144,7 @@ class ApiController extends AbstractRestfulController
             );
         }
 
-        if (isset($data['password']) || isset($data['new-password'])) {
+        if (isset($data['password']) || isset($data['new_password'])) {
             return $this->changePassword($user, $data);
         }
 
@@ -177,7 +177,7 @@ class ApiController extends AbstractRestfulController
             'o:name' => null,
             // 'o:email' => null,
             // 'password' => null,
-            // 'new-password' => null,
+            // 'new_password' => null,
         ]);
         if (count($data) !== count($toPatch)) {
             return $this->returnError(
@@ -509,13 +509,13 @@ class ApiController extends AbstractRestfulController
                 Response::STATUS_CODE_400
             );
         }
-        if (empty($data['new-password'])) {
+        if (empty($data['new_password'])) {
             return $this->returnError(
                 $this->translate('New password empty.'), // @translate
                 Response::STATUS_CODE_400
             );
         }
-        if (strlen($data['new-password']) < 6) {
+        if (strlen($data['new_password']) < 6) {
             return $this->returnError(
                 $this->translate('New password should have 6 characters or more.'), // @translate
                 Response::STATUS_CODE_400
@@ -530,7 +530,7 @@ class ApiController extends AbstractRestfulController
             );
         }
 
-        $user->setPassword($data['new-password']);
+        $user->setPassword($data['new_password']);
         $entityManager = $this->getEntityManager();
         $entityManager->persist($user);
         $entityManager->flush();
@@ -797,7 +797,6 @@ class ApiController extends AbstractRestfulController
     {
         return $this->viewOptions;
     }
-
 
     /**
      * Check request content-type header to require JSON for methods with payloads.
