@@ -59,6 +59,7 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
     public function install(ServiceLocatorInterface $serviceLocator)
     {
         $this->setServiceLocator($serviceLocator);
+        $this->preInstall();
         $this->checkDependency();
         $this->checkDependencies();
         $this->execSqlFromFile($this->modulePath() . '/data/install/schema.sql');
@@ -66,17 +67,20 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         $this->manageMainSettings('install');
         $this->manageSiteSettings('install');
         $this->manageUserSettings('install');
+        $this->postInstall();
     }
 
     public function uninstall(ServiceLocatorInterface $serviceLocator)
     {
         $this->setServiceLocator($serviceLocator);
+        $this->preUninstall();
         $this->execSqlFromFile($this->modulePath() . '/data/install/uninstall.sql');
         $this->manageConfig('uninstall');
         $this->manageMainSettings('uninstall');
         $this->manageSiteSettings('uninstall');
         // Don't uninstall user settings, they don't belong to admin.
         // $this->manageUserSettings('uninstall');
+        $this->postUninstall();
     }
 
     public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator)
@@ -97,6 +101,9 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         if (!$formManager->has($formClass)) {
             return '';
         }
+
+        // Simplify config of modules.
+        $renderer->ckEditor();
 
         $settings = $services->get('Omeka\Settings');
 
@@ -172,6 +179,22 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         return OMEKA_PATH . '/modules/' . static::NAMESPACE;
     }
 
+    protected function preInstall()
+    {
+    }
+
+    protected function postInstall()
+    {
+    }
+
+    protected function preUninstall()
+    {
+    }
+
+    protected function postUninstall()
+    {
+    }
+
     /**
      * Execute a sql from a file.
      *
@@ -187,7 +210,15 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         /** @var \Doctrine\DBAL\Connection $connection */
         $connection = $services->get('Omeka\Connection');
         $sql = file_get_contents($filepath);
-        return $connection->exec($sql);
+
+        // Use single statements for execution.
+        // See core commit #2689ce92f.
+        $sqls = array_filter(array_map('trim', explode(";\n", $sql)));
+        foreach ($sqls as $sql) {
+            $result = $connection->exec($sql);
+        }
+
+        return $result;
     }
 
     /**
@@ -233,14 +264,14 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings\Site');
         $api = $services->get('Omeka\ApiManager');
-        $sites = $api->search('sites')->getContent();
-        foreach ($sites as $site) {
-            $settings->setTargetId($site->id());
+        $ids = $api->search('sites', [], ['returnScalar' => 'id'])->getContent();
+        foreach ($ids as $id) {
+            $settings->setTargetId($id);
             $this->manageAnySettings(
                 $settings,
                 $settingsType,
                 $process,
-                isset($values[$site->id()]) ? $values[$site->id()] : []
+                isset($values[$id]) ? $values[$id] : []
             );
         }
     }
@@ -262,14 +293,14 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         $services = $this->getServiceLocator();
         $settings = $services->get('Omeka\Settings\User');
         $api = $services->get('Omeka\ApiManager');
-        $users = $api->search('users')->getContent();
-        foreach ($users as $user) {
-            $settings->setTargetId($user->id());
+        $ids = $api->search('users', [], ['returnScalar' => 'id'])->getContent();
+        foreach ($ids as $id) {
+            $settings->setTargetId($id);
             $this->manageAnySettings(
                 $settings,
                 $settingsType,
                 $process,
-                isset($values[$user->id()]) ? $values[$user->id()] : []
+                isset($values[$id]) ? $values[$id] : []
             );
         }
     }
@@ -367,6 +398,10 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
         if (is_null($data)) {
             return;
         }
+
+        // Simplify config of settings.
+        $ckEditorHelper = $services->get('ViewHelperManager')->get('ckEditor');
+        $ckEditorHelper();
 
         $space = strtolower(static::NAMESPACE);
 
@@ -584,7 +619,7 @@ abstract class AbstractModule extends \Omeka\Module\AbstractModule
      * @param string $string
      * @return array
      */
-    protected function stringToList($string)
+    public function stringToList($string)
     {
         return array_filter(array_map('trim', explode("\n", $this->fixEndOfLine($string))));
     }
