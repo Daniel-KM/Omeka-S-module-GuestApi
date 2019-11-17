@@ -230,7 +230,7 @@ class ApiController extends AbstractRestfulController
     }
 
     /**
-     * @see \GuestUser\Controller\Site\GuestUserController::registerAction()
+     * @see \Guest\Controller\Site\GuestController::registerAction()
      *
      * @todo Replace registerAction() by create()?
      * @return \Zend\Http\Response|\Zend\View\Model\ViewModel
@@ -253,7 +253,7 @@ class ApiController extends AbstractRestfulController
         }
 
         // TODO Use validator from the user form?
-        // TODO Remove this fix used to use post/query for /api/register and /guest-user/register.
+        // TODO Remove this fix used to use post/query for /api/register and /guest/register.
         $data = $this->params()->fromQuery();
         if (empty($data)) {
             $data = $this->params()->fromPost();
@@ -662,7 +662,7 @@ class ApiController extends AbstractRestfulController
             $urlOptions = ['force_canonical' => true];
             $urlOptions['query']['token'] = $data['token'];
             $data['token_url'] = $this->url()->fromRoute(
-                'site/guest-user',
+                'site/guest/anonymous',
                 ['site-slug' => $site->slug(),  'action' => $template],
                 $urlOptions
             );

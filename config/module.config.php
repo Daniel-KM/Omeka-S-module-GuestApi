@@ -21,7 +21,7 @@ return [
         'routes' => [
             'api' => [
                 'child_routes' => [
-                    'guest-user' => [
+                    'guest' => [
                         'type' => \Zend\Router\Http\Segment::class,
                         'options' => [
                             'route' => '/user[/:id]',
@@ -30,7 +30,7 @@ return [
                             ],
                         ],
                     ],
-                    'guest-user-register' => [
+                    'guest-register' => [
                         'type' => \Zend\Router\Http\Literal::class,
                         'options' => [
                             'route' => '/register',

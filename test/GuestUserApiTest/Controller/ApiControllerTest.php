@@ -21,7 +21,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
      */
     public function registerShouldDisplayLogin()
     {
-        $this->postDispatch('/s/test/guest-user/register', [
+        $this->postDispatch('/s/test/guest/register', [
             'user-information' => [
                 'o:email' => 'test3@test.fr',
                 'o:name' => 'test',
@@ -41,7 +41,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
 
         $mailer = $this->getServiceLocator()->get('Omeka\Mailer');
         $body = $mailer->getMessage()->getBody();
-        $link = '<a href=\''.$siteRepresentation->siteUrl().'/guest-user/confirm?token='.$this->getUserToken('test3@test.fr')->getToken().'\'>';
+        $link = '<a href=\''.$siteRepresentation->siteUrl().'/guest/confirm?token='.$this->getUserToken('test3@test.fr')->getToken().'\'>';
         $this->assertContains('You have registered for an account on '.$link.'Test</a>. Please confirm your registration by following '.$link.'this link</a>.  If you did not request to join Test please disregard this email.', $body);
     }
 
@@ -52,9 +52,9 @@ class ApiControllerTest extends GuestUserControllerTestCase
     {
         $user = $this->createGuestUser();
         $userToken = $this->getUserToken($user->email());
-        $this->dispatch('/s/test/guest-user/confirm?token='.$userToken->getToken());
+        $this->dispatch('/s/test/guest/confirm?token='.$userToken->getToken());
         $this->assertTrue($userToken->isConfirmed());
-        $this->assertRedirect('guest-user/login');
+        $this->assertRedirect('guest/login');
         $this->assertXPathQueryContentContains('//li[@class="success"]', 'Thanks for joining Test! You can now log using the password you chose.');
     }
 
@@ -64,7 +64,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
     public function wrongTokenlinkShouldNotValidateGuestUser()
     {
         $user = $this->createGuestUser();
-        $this->dispatch('/s/test/guest-user/confirm?token=1234');
+        $this->dispatch('/s/test/guest/confirm?token=1234');
 
         $this->assertFalse($this->getUserToken($user->email())->isConfirmed());
     }
@@ -80,7 +80,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
         $em->flush();
         $this->login('guest@test.fr', 'test');
 
-        $this->postDispatch('/s/test/guest-user/update-account', [
+        $this->postDispatch('/s/test/guest/update-account', [
             'user-information' => [
                 'o:email' => 'test4@test.fr',
                 'o:name' => 'test2',
@@ -121,7 +121,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
         $this->logout();
 
         $csrf = new Csrf('loginform_csrf');
-        $this->postDispatch('/s/test/guest-user/login', [
+        $this->postDispatch('/s/test/guest/login', [
             'email' => 'guest@test.fr',
             'password' => 'test',
             'loginform_csrf' => $csrf->getValue(),
@@ -142,7 +142,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
         session_start();
 
         $this->logout();
-        $this->postDispatch('/s/test/guest-user/login', [
+        $this->postDispatch('/s/test/guest/login', [
             'email' => 'test@test.fr',
             'password' => 'test2',
             'csrf' => (new Csrf('csrf'))->getValue(),
@@ -159,7 +159,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
     {
         $this->createGuestUser();
         $this->login('guest@test.fr', 'test');
-        $this->dispatch('/s/test/guest-user/logout');
+        $this->dispatch('/s/test/guest/logout');
         $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
         $this->assertFalse($auth->hasIdentity());
     }
@@ -169,7 +169,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
      */
     public function loginOkShouldRedirect()
     {
-        $this->postDispatch('/s/test/guest-user/login', [
+        $this->postDispatch('/s/test/guest/login', [
             'email' => 'test@test.fr',
             'password' => 'test',
             'csrf' => (new Csrf('csrf'))->getValue(),
@@ -186,7 +186,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
         $email = 'guest@test.fr';
         $response = $this->api()->create('users', [
             'o:email' => $email,
-            'o:name' => 'guest-user',
+            'o:name' => 'guest',
             'o:role' => 'guest',
             'o:is_active' => true,
         ]);
