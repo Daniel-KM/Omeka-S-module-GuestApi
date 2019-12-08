@@ -14,6 +14,7 @@ use Zend\Authentication\AuthenticationService;
 use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\Mvc\MvcEvent;
+use Zend\Session\Container as SessionContainer;
 use Zend\Stdlib\RequestInterface as Request;
 
 /**
@@ -297,6 +298,36 @@ class ApiController extends AbstractRestfulController
         $eventManager->trigger('user.login', $user);
 
         return $this->returnSessionToken($user);
+    }
+
+    public function logoutAction()
+    {
+        /** @var \Omeka\Entity\User $user */
+        $user = $this->getAuthenticationService()->getIdentity();
+        if (!$user) {
+            return $this->returnError(
+                $this->translate('User not logged.') // @translate
+            );
+        }
+
+        $this->removeSessionTokens($user);
+
+        $auth = $this->getAuthenticationService();
+        $auth->clearIdentity();
+
+        $sessionManager = SessionContainer::getDefaultManager();
+
+        $eventManager = $this->getEventManager();
+        $eventManager->trigger('user.logout');
+
+        $sessionManager->destroy();
+
+        $message = $this->translate('Successfully logout.'); // @translate
+        $result = [
+            'status' => Response::STATUS_CODE_200,
+            'message' => $message,
+        ];
+        return new ApiJsonModel($result, $this->getViewOptions());
     }
 
     public function sessionTokenAction()
@@ -698,13 +729,7 @@ class ApiController extends AbstractRestfulController
 
     protected function prepareSessionToken(User $user)
     {
-        // Remove all existing session tokens.
-        $keys = $user->getKeys();
-        foreach ($keys as $keyId => $key) {
-            if ($key->getLabel() === 'guestapi_session') {
-                $keys->remove($keyId);
-            }
-        }
+        $this->removeSessionTokens($user);
 
         // Create a new session token.
         $key = new \Omeka\Entity\ApiKey;
@@ -725,6 +750,18 @@ class ApiController extends AbstractRestfulController
             'key_identity' => $keyId,
             'key_credential' => $keyCredential,
         ];
+    }
+
+    protected function removeSessionTokens(User $user)
+    {
+        // Remove all existing session tokens.
+        $keys = $user->getKeys();
+        foreach ($keys as $keyId => $key) {
+            if ($key->getLabel() === 'guestapi_session') {
+                $keys->remove($keyId);
+            }
+        }
+        $this->entityManager->flush();
     }
 
     protected function returnSessionToken(User $user)

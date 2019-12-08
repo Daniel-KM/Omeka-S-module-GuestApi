@@ -40,6 +40,16 @@ return [
                             ],
                         ],
                     ],
+                    'guest-logout' => [
+                        'type' => \Zend\Router\Http\Literal::class,
+                        'options' => [
+                            'route' => '/logout',
+                            'defaults' => [
+                                'controller' => Controller\ApiController::class,
+                                'action' => 'logout',
+                            ],
+                        ],
+                    ],
                     'guest-session-token' => [
                         'type' => \Zend\Router\Http\Literal::class,
                         'options' => [
