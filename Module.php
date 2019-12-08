@@ -38,6 +38,14 @@ class Module extends AbstractModule
         $this->addAclRoleAndRules();
     }
 
+    protected function postInstall()
+    {
+        // Upgrade from GuestUserApi, if old settings are present.
+        // Old settings are renamed from "guestuserapi_*" to "guestuser_*".
+        $filepath = $this->modulePath() . '/data/install/install_post.sql';
+        $this->execSqlFromFile($filepath);
+    }
+
     /**
      * Add ACL role and rules for this module.
      */
