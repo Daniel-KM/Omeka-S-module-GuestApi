@@ -4,23 +4,21 @@ namespace GuestApi\Controller;
 use Doctrine\ORM\EntityManager;
 use Guest\Entity\GuestToken;
 use Guest\Stdlib\PsrMessage;
+use Omeka\Api\Manager as ApiManager;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Entity\User;
 use Omeka\Entity\SitePermission;
-use Omeka\Mvc\Exception;
 use Omeka\Stdlib\Message;
+use Omeka\Stdlib\Paginator;
 use Omeka\View\Model\ApiJsonModel;
 use Zend\Authentication\AuthenticationService;
 use Zend\Http\Response;
-use Zend\Mvc\Controller\AbstractRestfulController;
-use Zend\Mvc\MvcEvent;
 use Zend\Session\Container as SessionContainer;
-use Zend\Stdlib\RequestInterface as Request;
 
 /**
  * Allow to manage "me" via api.
  */
-class ApiController extends AbstractRestfulController
+class ApiController extends \Omeka\Controller\ApiController
 {
     /**
      * @var AuthenticationService
@@ -38,29 +36,21 @@ class ApiController extends AbstractRestfulController
     protected $config;
 
     /**
-     * @var array
-     */
-    protected $viewOptions = [];
-
-    protected $defaultRoles = [
-        \Omeka\Permissions\Acl::ROLE_RESEARCHER,
-        \Omeka\Permissions\Acl::ROLE_AUTHOR,
-        \Omeka\Permissions\Acl::ROLE_REVIEWER,
-        \Omeka\Permissions\Acl::ROLE_EDITOR,
-        \Omeka\Permissions\Acl::ROLE_SITE_ADMIN,
-        \Omeka\Permissions\Acl::ROLE_GLOBAL_ADMIN,
-    ];
-
-    /**
+     * @param Paginator $paginator
+     * @param ApiManager $api
      * @param AuthenticationService $authenticationService
      * @param EntityManager $entityManager
      * @param array $config
      */
     public function __construct(
+        Paginator $paginator,
+        ApiManager $api,
         AuthenticationService $authenticationService,
         EntityManager $entityManager,
         array $config
     ) {
+        $this->paginator = $paginator;
+        $this->api = $api;
         $this->authenticationService = $authenticationService;
         $this->entityManager = $entityManager;
         $this->config = $config;
@@ -75,9 +65,7 @@ class ApiController extends AbstractRestfulController
                 Response::STATUS_CODE_403
             );
         }
-
-        $response = $this->api()->read('users', $user->getId());
-        return new ApiJsonModel($response, $this->getViewOptions());
+        return parent::get($user->getId());
     }
 
     public function getList()
@@ -88,7 +76,7 @@ class ApiController extends AbstractRestfulController
         );
     }
 
-    public function create($data)
+    public function create($data, $fileData = [])
     {
         return $this->returnError(
             $this->translate('Method Not Allowed'), // @translate
@@ -215,8 +203,7 @@ class ApiController extends AbstractRestfulController
         // TODO Manage authentication via api for via third parties.
         // Process authentication via entity manager.
         /** @var \Omeka\Entity\User $user */
-        $entityManager = $this->getEntityManager();
-        $user = $entityManager->getRepository(User::class)->findOneBy([
+        $user = $this->entityManager->getRepository(User::class)->findOneBy([
             'email' => $data['email'],
             // Limited to role "guest" for security.
             'role' => \Guest\Permissions\Acl::ROLE_GUEST,
@@ -245,7 +232,7 @@ class ApiController extends AbstractRestfulController
     public function logoutAction()
     {
         /** @var \Omeka\Entity\User $user */
-        $user = $this->getAuthenticationService()->getIdentity();
+        $user = $this->authenticationService->getIdentity();
         if (!$user) {
             return $this->returnError(
                 $this->translate('User not logged.') // @translate
@@ -254,7 +241,7 @@ class ApiController extends AbstractRestfulController
 
         $this->removeSessionTokens($user);
 
-        $auth = $this->getAuthenticationService();
+        $auth = $this->authenticationService;
         $auth->clearIdentity();
 
         $sessionManager = SessionContainer::getDefaultManager();
@@ -275,7 +262,7 @@ class ApiController extends AbstractRestfulController
     public function sessionTokenAction()
     {
         /** @var \Omeka\Entity\User $user */
-        $user = $this->getAuthenticationService()->getIdentity();
+        $user = $this->authenticationService->getIdentity();
         if (!$user) {
             return $this->returnError(
                 $this->translate('Access forbidden.'), // @translate
@@ -310,12 +297,6 @@ class ApiController extends AbstractRestfulController
 
         // Here, it's not the true api, so there may be credentials that are not checked.
         // TODO Use the true api to register.
-
-        if (!$this->getRequest()->isPost()) {
-            return $this->returnError(
-                $this->translate('Register requires a post.') // @translate
-            );
-        }
 
         // TODO Use validator from the user form?
         // TODO Remove this fix used to use post/query for /api/register and /guest/register.
@@ -355,7 +336,7 @@ class ApiController extends AbstractRestfulController
 
             $site = is_numeric($data['site']) ? ['id' => $data['site']] : ['slug' => $data['site']];
             try {
-                $site = $this->api()->read('sites', $site)->getContent();
+                $site = $this->api->read('sites', $site)->getContent();
             } catch (\Omeka\Api\Exception\NotFoundException $e) {
                 $site = null;
             }
@@ -375,16 +356,15 @@ class ApiController extends AbstractRestfulController
         $userInfo['o:role'] = \Guest\Permissions\Acl::ROLE_GUEST;
         $userInfo['o:is_active'] = false;
 
-        $response = $this->api()->create('users', $userInfo);
+        $response = $this->api->create('users', $userInfo);
         if (!$response) {
             /** @var \Omeka\Entity\User $user */
-            $entityManager = $this->getEntityManager();
-            $user = $entityManager->getRepository(User::class)->findOneBy([
+            $user = $this->entityManager->getRepository(User::class)->findOneBy([
                 'email' => $userInfo['o:email'],
             ]);
             if ($user) {
                 /** @var \Guest\Entity\GuestToken $guestToken */
-                $guestToken = $entityManager->getRepository(GuestToken::class)
+                $guestToken = $this->entityManager->getRepository(GuestToken::class)
                     ->findOneBy(['email' => $userInfo['o:email']], ['id' => 'DESC']);
                 if (empty($guestToken) || $guestToken->isConfirmed()) {
                     return $this->returnError(
@@ -396,8 +376,8 @@ class ApiController extends AbstractRestfulController
                 // the option may have been updated.
                 if ($guestToken && $emailIsValid) {
                     $guestToken->setConfirmed(true);
-                    $this->getEntityManager()->persist($guestToken);
-                    $this->getEntityManager()->flush();
+                    $this->entityManager->persist($guestToken);
+                    $this->entityManager->flush();
                     return $this->returnError(
                         $this->translate('Already registered.') // @translate
                     );
@@ -439,15 +419,15 @@ class ApiController extends AbstractRestfulController
         // TODO Add a check of the site.
         if ($site) {
             // A guest user cannot update site, so the entity manager is used.
-            $siteEntity = $this->api()->read('sites', $site->id(), [], ['responseContent' => 'resource'])->getContent();
+            $siteEntity = $this->api->read('sites', $site->id(), [], ['responseContent' => 'resource'])->getContent();
             $sitePermission = new SitePermission;
             $sitePermission->setSite($siteEntity);
             $sitePermission->setUser($user);
             $sitePermission->setRole(SitePermission::ROLE_VIEWER);
             $siteEntity->getSitePermissions()->add($sitePermission);
-            $this->getEntityManager()->persist($siteEntity);
-            $this->getEntityManager()->flush();
-            // $this->api()->update('sites', $site->id(), [
+            $this->entityManager->persist($siteEntity);
+            $this->entityManager->flush();
+            // $this->api->update('sites', $site->id(), [
             //     'o:site_permission' => [
             //         'o:user' => ['o:id' => $user->getId()],
             //         'o:role' => 'viewer',
@@ -456,14 +436,14 @@ class ApiController extends AbstractRestfulController
         } else {
             $site = $this->defaultSite();
             // User is flushed when the guest user token is created.
-            $this->getEntityManager()->persist($user);
+            $this->entityManager->persist($user);
         }
 
         // Set the current site, disabled in api.
         $this->getPluginManager()->get('currentSite')->setSite($site);
 
         if ($emailIsValid) {
-            $this->getEntityManager()->flush();
+            $this->entityManager->flush();
             $guestToken = null;
         } else {
             $guestToken = $this->createGuestToken($user);
@@ -521,7 +501,7 @@ class ApiController extends AbstractRestfulController
      */
     protected function isUserLogged()
     {
-        return $this->getAuthenticationService()->hasIdentity();
+        return $this->authenticationService->hasIdentity();
     }
 
     /**
@@ -540,7 +520,7 @@ class ApiController extends AbstractRestfulController
         // update their account.
         // The check of the role is only a security, rights are set in Module.
         /** @var \Omeka\Entity\User $user */
-        $user = $this->identity();
+        $user = $this->authenticationService->getIdentity();
         if (!$user || $user->getRole() !== \Guest\Permissions\Acl::ROLE_GUEST) {
             return null;
         }
@@ -549,9 +529,11 @@ class ApiController extends AbstractRestfulController
     }
 
     /**
+     * Update me is always a patch.
+     *
      * @param User $user
      * @param array $data
-     * @param boolean $isUpdate Currently not used: always a partial patch.
+     * @param bool $isUpdate Currently not used: always a partial patch.
      * @return \Omeka\View\Model\ApiJsonModel
      */
     protected function updatePatch(User $user, array $data, $isUpdate = false)
@@ -616,7 +598,8 @@ class ApiController extends AbstractRestfulController
             );
         }
 
-        $response = $this->api()->update('users', $user->getId(), $toPatch, [], ['isPartial' => true]);
+        // Update me is always partial for security, else use standard api.
+        $response = $this->api->update('users', $user->getId(), $toPatch, [], ['isPartial' => true]);
         return new ApiJsonModel($response, $this->getViewOptions());
     }
 
@@ -656,9 +639,8 @@ class ApiController extends AbstractRestfulController
         }
 
         $user->setPassword($data['new_password']);
-        $entityManager = $this->getEntityManager();
-        $entityManager->persist($user);
-        $entityManager->flush();
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
 
         $result = [
             'status' => Response::STATUS_CODE_200,
@@ -759,7 +741,7 @@ class ApiController extends AbstractRestfulController
         return [
             'o:user' => [
                 '@id' => $this->url()->fromRoute('api/default', ['resource' => 'users', 'id' => $user->getId()], ['force_canonical' => true]),
-                'o:id' => $user->getId()
+                'o:id' => $user->getId(),
             ],
             'key_identity' => $keyId,
             'key_credential' => $keyCredential,
@@ -879,162 +861,8 @@ class ApiController extends AbstractRestfulController
 
         return [
             'subject' => $subject,
-            'body'=> $body,
+            'body' => $body,
         ];
-    }
-
-    /**
-     * Validate the API request and set global options.
-     *
-     * @param MvcEvent $event
-     * @see \Omeka\Controller\ApiController::onDispatch()
-     */
-    public function onDispatch(MvcEvent $event)
-    {
-        $request = $this->getRequest();
-
-        // Set pretty print.
-        $prettyPrint = $request->getQuery('pretty_print');
-        if (null !== $prettyPrint) {
-            $this->setViewOption('pretty_print', true);
-        }
-
-        // Set the JSONP callback.
-        $callback = $request->getQuery('callback');
-        if (null !== $callback) {
-            $this->setViewOption('callback', $callback);
-        }
-
-        try {
-            // Finish dispatching the request.
-
-            // TODO Action for /api/register: check json or multiform as other.
-            $action = $event->getRouteMatch()->getParam('action', false);
-            if ($action !== 'register') {
-                $this->checkContentType($request);
-            }
-
-            parent::onDispatch($event);
-        } catch (\Exception $e) {
-            $this->logger()->err((string) $e);
-            return $this->getErrorResult($event, $e);
-        }
-    }
-
-    /**
-     * Process post data and call create
-     *
-     * This method is overridden from the AbstractRestfulController to allow
-     * processing of multipart POSTs.
-     *
-     * @param Request $request
-     * @return mixed
-     * @see \Omeka\Controller\ApiController::processPostData()
-     */
-    public function processPostData(Request $request)
-    {
-        $contentType = $request->getHeader('content-type');
-        if ($contentType->match('multipart/form-data')) {
-            $content = $request->getPost('data');
-            $fileData = $request->getFiles()->toArray();
-        } else {
-            $content = $request->getContent();
-            $fileData = [];
-        }
-        $data = $this->jsonDecode($content);
-        return $this->create($data, $fileData);
-    }
-
-    /**
-     * Set a view model option.
-     *
-     * @param string $key
-     * @param mixed $value
-     * @see \Omeka\Controller\ApiController::setViewOption()
-     */
-    public function setViewOption($key, $value)
-    {
-        $this->viewOptions[$key] = $value;
-    }
-
-    /**
-     * Get all view options.
-     *
-     * return array
-     * @see \Omeka\Controller\ApiController::getViewOption()
-     */
-    public function getViewOptions()
-    {
-        return $this->viewOptions;
-    }
-
-    /**
-     * Check request content-type header to require JSON for methods with payloads.
-     *
-     * @param Request $request
-     * @throws Exception\UnsupportedMediaTypeException
-     * @see \Omeka\Controller\ApiController::checkContentType()
-     */
-    protected function checkContentType(Request $request)
-    {
-        // Require application/json Content-Type for certain methods.
-        $method = strtolower($request->getMethod());
-        $contentType = $request->getHeader('content-type');
-        if (in_array($method, ['post', 'put', 'patch'])
-            && (
-                !$contentType
-                || !$contentType->match(['application/json', 'multipart/form-data'])
-            )
-        ) {
-            $contentType = $request->getHeader('Content-Type');
-            $errorMessage = sprintf(
-                'Invalid Content-Type header. Expecting "application/json", got "%s".',
-                $contentType ? $contentType->getMediaType() : 'none'
-            );
-
-            throw new Exception\UnsupportedMediaTypeException($errorMessage);
-        }
-    }
-
-    /**
-     * Set an error result to the MvcEvent and return the result.
-     *
-     * @param MvcEvent $event
-     * @param \Exception $error
-     * @see \Omeka\Controller\ApiController::getErrorResult()
-     */
-    protected function getErrorResult(MvcEvent $event, \Exception $error)
-    {
-        $result = new ApiJsonModel(null, $this->getViewOptions());
-        $result->setException($error);
-
-        $event->setResult($result);
-        return $result;
-    }
-
-    /**
-     * Decode a JSON string.
-     *
-     * Override ZF's default to always use json_decode and to add error checking.'
-     *
-     * @param string
-     * @return mixed
-     * @throws Exception\InvalidJsonException on JSON decoding errors or if the
-     * content is a scalar.
-     * @see \Omeka\Controller\ApiController::jsonDecode()
-     */
-    protected function jsonDecode($string)
-    {
-        $content = json_decode($string, (bool) $this->jsonDecodeType);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception\InvalidJsonException('JSON: ' . json_last_error_msg());
-        }
-
-        if (!is_array($content)) {
-            throw new Exception\InvalidJsonException('JSON: Content must be an object or array.');
-        }
-        return $content;
     }
 
     /**
@@ -1044,32 +872,15 @@ class ApiController extends AbstractRestfulController
      */
     protected function defaultSite()
     {
-        $api = $this->api();
         $defaultSiteId = $this->settings()->get('default_site');
         if ($defaultSiteId) {
             try {
-                $response = $api->read('sites', ['id' => $defaultSiteId], ['responseContent' => 'resource']);
+                $response = $this->api->read('sites', ['id' => $defaultSiteId], ['responseContent' => 'resource']);
                 return $response->getContent();
             } catch (\Omeka\Api\Exception\NotFoundException $e) {
             }
         }
-        return $api->searchOne('sites', ['sort_by' => 'id'])->getContent();
-    }
-
-    /**
-     * @return \Zend\Authentication\AuthenticationService
-     */
-    protected function getAuthenticationService()
-    {
-        return $this->authenticationService;
-    }
-
-    /**
-     * @return \Doctrine\ORM\EntityManager
-     */
-    protected function getEntityManager()
-    {
-        return $this->entityManager;
+        return $this->api()->searchOne('sites', ['sort_by' => 'id'])->getContent();
     }
 
     /**
