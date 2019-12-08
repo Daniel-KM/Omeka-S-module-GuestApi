@@ -9,6 +9,8 @@ profile.
 Installation
 ------------
 
+Install module [Guest] first.
+
 Uncompress files in the module directory and rename module folder `GuestApi`.
 
 
@@ -50,25 +52,16 @@ This Agreement may be freely reproduced and published, provided it is not
 altered, and that no provisions are either added or removed herefrom.
 
 
-Contact
--------
-
-Current maintainers:
-
-* Biblibre
-* Daniel Berthereau
-
-
 Copyright
 ---------
 
 * Copyright Daniel Berthereau, 2019 (see [Daniel-KM] on GitHub)
 
 
-[Guest Api]: https://github.com/biblibre/Omeka-S-module-GuestApi
-[Guest]: https://github.com/biblibre/Omeka-S-module-Guest
+[Guest Api]: https://github.com/Daniel-KM/Omeka-S-module-GuestApi
+[Guest]: https://github.com/Daniel-KM/Omeka-S-module-Guest
 [Omeka S]: https://www.omeka.org/s
-[module issues]: https://github.com/biblibre/Omeka-S-module-GuestApi/issues
+[module issues]: https://github.com/Daniel-KM/Omeka-S-module-GuestApi/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
