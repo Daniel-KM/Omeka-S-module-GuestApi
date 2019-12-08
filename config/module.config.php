@@ -30,6 +30,16 @@ return [
                             ],
                         ],
                     ],
+                    'guest-session-token' => [
+                        'type' => \Zend\Router\Http\Literal::class,
+                        'options' => [
+                            'route' => '/session-token',
+                            'defaults' => [
+                                'controller' => Controller\ApiController::class,
+                                'action' => 'session-token',
+                            ],
+                        ],
+                    ],
                     'guest-register' => [
                         'type' => \Zend\Router\Http\Literal::class,
                         'options' => [

@@ -233,6 +233,14 @@ class ApiController extends AbstractRestfulController
         );
     }
 
+    public function sessionTokenAction()
+    {
+        $sessionToken = $this->prepareSessionToken();
+        $response = new \Omeka\Api\Response;
+        $response->setContent($sessionToken ?: []);
+        return new ApiJsonModel($response, $this->getViewOptions());
+    }
+
     /**
      * @see \Guest\Controller\Site\GuestController::registerAction()
      *
@@ -615,6 +623,41 @@ class ApiController extends AbstractRestfulController
             'message' => $message,
         ];
         return new ApiJsonModel($result, $this->getViewOptions());
+    }
+
+    protected function prepareSessionToken()
+    {
+        /** @var \Omeka\Entity\User $user */
+        $user = $this->getAuthenticationService()->getIdentity();
+        if (!$user) {
+            return null;
+        }
+
+        // Remove all existing session tokens.
+        $keys = $user->getKeys();
+        foreach ($keys as $keyId => $key) {
+            if ($key->getLabel() === 'guestapi_session') {
+                $keys->remove($keyId);
+            }
+        }
+
+        // Create a new session token.
+        $key = new \Omeka\Entity\ApiKey;
+        $key->setId();
+        $key->setLabel('guestapi_session');
+        $key->setOwner($user);
+        $keyId = $key->getId();
+        $keyCredential = $key->setCredential();
+        $this->entityManager->persist($key);
+
+        $this->entityManager->flush();
+
+        $user = $this->api()->read('users', ['id' => $user->getId()], [], ['responseContent' => 'reference'])->getContent();
+        return [
+            'o:user' => $user,
+            'key_identity' => $keyId,
+            'key_credential' => $keyCredential,
+        ];
     }
 
     protected function returnError($message, $statusCode = Response::STATUS_CODE_400, array $errors = null)

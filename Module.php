@@ -57,11 +57,17 @@ class Module extends AbstractModule
 
         $settings = $services->get('Omeka\Settings');
         $isApiOpenRegister = $settings->get('guestapi_open', 'moderate');
-        if ($isApiOpenRegister !== 'closed') {
+        if ($isApiOpenRegister === 'closed') {
             $acl->allow(
                 null,
                 [\GuestApi\Controller\ApiController::class],
-                ['register']
+                ['session-token']
+            );
+        } else {
+            $acl->allow(
+                null,
+                [\GuestApi\Controller\ApiController::class],
+                ['register', 'session-token']
             );
             $acl->allow(
                 null,
