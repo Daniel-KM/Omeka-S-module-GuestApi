@@ -98,10 +98,14 @@ class ApiController extends AbstractRestfulController
 
     public function update($id, $data)
     {
-        return $this->returnError(
-            $this->translate('Method Not Allowed'), // @translate
-            Response::STATUS_CODE_405
-        );
+        $user = $this->checkUserAndRole($id);
+        if (!$user) {
+            return $this->returnError(
+                $this->translate('Access forbidden.'), // @translate
+                Response::STATUS_CODE_403
+            );
+        }
+        return $this->updatePatch($user, $data, true);
     }
 
     public function replaceList($data)
@@ -121,69 +125,7 @@ class ApiController extends AbstractRestfulController
                 Response::STATUS_CODE_403
             );
         }
-
-        if (empty($data) || !array_filter($data)) {
-            return $this->returnError(
-                $this->translate('Request is empty.'), // @translate
-                Response::STATUS_CODE_400
-            );
-        }
-
-        if (isset($data['password']) || isset($data['new_password'])) {
-            return $this->changePassword($user, $data);
-        }
-
-        // By exception, two common metadata can be without prefix.
-        if (isset($data['name'])) {
-            $data['o:name'] = $data['name'];
-        }
-        unset($data['name']);
-        if (isset($data['email'])) {
-            $data['o:email'] = $data['email'];
-        }
-        unset($data['email']);
-
-        if (isset($data['o:email'])) {
-            $settings = $this->settings();
-            if ($settings->get('guestapi_register_site')) {
-                $site = $this->userSites($user, true);
-                if (empty($site)) {
-                    return $this->returnError(
-                        $this->translate('Email cannot be updated: the user is not related to a site.'), // @translate
-                        Response::STATUS_CODE_400
-                    );
-                }
-            } else {
-                $site = $this->defaultSite();
-            }
-
-            $this->getPluginManager()->get('currentSite')->setSite($site);
-            return $this->changeEmail($user, $data);
-        }
-
-        // For security, keep only the updatable data.
-        $toPatch = array_intersect_key($data, [
-            'o:name' => null,
-            // 'o:email' => null,
-            // 'password' => null,
-            // 'new_password' => null,
-        ]);
-        if (count($data) !== count($toPatch)) {
-            return $this->returnError(
-                $this->translate('Your request contains metadata that cannot be updated.'), // @translate
-                Response::STATUS_CODE_400
-            );
-        }
-
-        if (isset($data['o:name']) && empty($data['o:name'])) {
-            return $this->returnError(
-                $this->translate('The new name is empty.'), // @translate
-                Response::STATUS_CODE_400
-            );
-        }
-
-        $response = $this->api()->update('users', $user->getId(), $toPatch, [], ['isPartial' => true]);
-        return new ApiJsonModel($response, $this->getViewOptions());
+        return $this->updatePatch($user, $data, false);
     }
 
     public function patchList($data)
@@ -604,6 +546,78 @@ class ApiController extends AbstractRestfulController
         }
 
         return $user;
+    }
+
+    /**
+     * @param User $user
+     * @param array $data
+     * @param boolean $isUpdate Currently not used: always a partial patch.
+     * @return \Omeka\View\Model\ApiJsonModel
+     */
+    protected function updatePatch(User $user, array $data, $isUpdate = false)
+    {
+        if (empty($data) || !array_filter($data)) {
+            return $this->returnError(
+                $this->translate('Request is empty.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+
+        if (isset($data['password']) || isset($data['new_password'])) {
+            return $this->changePassword($user, $data);
+        }
+
+        // By exception, two common metadata can be without prefix.
+        if (isset($data['name'])) {
+            $data['o:name'] = $data['name'];
+        }
+        unset($data['name']);
+        if (isset($data['email'])) {
+            $data['o:email'] = $data['email'];
+        }
+        unset($data['email']);
+
+        if (isset($data['o:email'])) {
+            $settings = $this->settings();
+            if ($settings->get('guestapi_register_site')) {
+                $site = $this->userSites($user, true);
+                if (empty($site)) {
+                    return $this->returnError(
+                        $this->translate('Email cannot be updated: the user is not related to a site.'), // @translate
+                        Response::STATUS_CODE_400
+                    );
+                }
+            } else {
+                $site = $this->defaultSite();
+            }
+
+            $this->getPluginManager()->get('currentSite')->setSite($site);
+            return $this->changeEmail($user, $data);
+        }
+
+        // For security, keep only the updatable data.
+        $toPatch = array_intersect_key($data, [
+            'o:name' => null,
+            // 'o:email' => null,
+            // 'password' => null,
+            // 'new_password' => null,
+        ]);
+        if (count($data) !== count($toPatch)) {
+            return $this->returnError(
+                $this->translate('Your request contains metadata that cannot be updated.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+
+        if (isset($data['o:name']) && empty($data['o:name'])) {
+            return $this->returnError(
+                $this->translate('The new name is empty.'), // @translate
+                Response::STATUS_CODE_400
+            );
+        }
+
+        $response = $this->api()->update('users', $user->getId(), $toPatch, [], ['isPartial' => true]);
+        return new ApiJsonModel($response, $this->getViewOptions());
     }
 
     protected function changePassword(User $user, array $data)
