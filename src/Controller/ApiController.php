@@ -241,6 +241,15 @@ class ApiController extends AbstractRestfulController
      */
     public function registerAction()
     {
+        $settings = $this->settings();
+        $apiOpenRegistration = $settings->get('guestapi_open');
+        if ($apiOpenRegistration === 'closed') {
+            return $this->returnError(
+                $this->translate('Access forbidden.'), // @translate
+                Response::STATUS_CODE_403
+            );
+        }
+
         if ($this->isUserLogged()) {
             return $this->returnError(
                 $this->translate('User cannot register: already logged.') // @translate

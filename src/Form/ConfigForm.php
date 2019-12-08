@@ -10,14 +10,19 @@ class ConfigForm extends Form
     {
         $this
             ->add([
-                'name' => 'guestapi_register',
-                'type' => Element\Checkbox::class,
+                'name' => 'guestapi_open',
+                'type' => Element\Radio::class,
                 'options' => [
-                    'label' => 'Allow open registration via api', // @translate
-                    'info' => 'Allow guest user registration without administrator approval via api.', // @translate
+                    'label' => 'Registration via api', // @translate
+                    'info' => 'Allow guest user registration with or without administrator approval via api.', // @translate
+                    'value_options' => [
+                        'open' => 'Open to everyone', // @translate
+                        // 'moderate' => 'Open with moderation', // @translate
+                        'closed' => 'Closed to visitors', // @translate
+                    ],
                 ],
                 'attributes' => [
-                    'id' => 'guestapi-register',
+                    'id' => 'guestapi-open',
                 ],
             ])
             ->add([

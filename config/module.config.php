@@ -56,7 +56,7 @@ return [
     ],
     'guestapi' => [
         'config' => [
-            'guestapi_register' => false,
+            'guestapi_open' => 'moderate',
             'guestapi_register_site' => false,
             'guestapi_register_email_is_valid' => false,
             'guestapi_message_confirm_registration_subject' => 'Welcome to {main_title}!', // @translate

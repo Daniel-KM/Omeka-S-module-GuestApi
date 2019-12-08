@@ -19,3 +19,8 @@ $connection = $services->get('Omeka\Connection');
 // $plugins = $services->get('ControllerPluginManager');
 // $api = $plugins->get('api');
 // $space = strtolower(__NAMESPACE__);
+
+if (version_compare($oldVersion, '3.1.1', '<')) {
+    $settings->set('guestapi_open', $settings->get('guestapi_register') ? 'open' : 'closed');
+    $settings->delete('guestapi_register');
+}

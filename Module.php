@@ -56,8 +56,8 @@ class Module extends AbstractModule
         $acl = $services->get('Omeka\Acl');
 
         $settings = $services->get('Omeka\Settings');
-        $isApiOpenRegister = $settings->get('guestapi_register', false);
-        if ($isApiOpenRegister) {
+        $isApiOpenRegister = $settings->get('guestapi_open', 'moderate');
+        if ($isApiOpenRegister !== 'closed') {
             $acl->allow(
                 null,
                 [\GuestApi\Controller\ApiController::class],
@@ -77,7 +77,8 @@ class Module extends AbstractModule
             );
         }
 
-        // This is an api, so all rest api actions are allowed.
+        // This is an api, so all rest api actions are allowed, but only for
+        // guest for security.
         $acl->allow(
             [\Guest\Permissions\Acl::ROLE_GUEST],
             [\GuestApi\Controller\ApiController::class]
