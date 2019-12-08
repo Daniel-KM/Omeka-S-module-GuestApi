@@ -18,7 +18,7 @@ use Zend\Session\Container as SessionContainer;
 use Zend\Stdlib\RequestInterface as Request;
 
 /**
- * Allow to register via api.
+ * Allow to manage "me" via api.
  */
 class ApiController extends AbstractRestfulController
 {
@@ -66,30 +66,6 @@ class ApiController extends AbstractRestfulController
         $this->config = $config;
     }
 
-    public function create($data)
-    {
-        return $this->returnError(
-            $this->translate('Method Not Allowed'), // @translate
-            Response::STATUS_CODE_405
-        );
-    }
-
-    public function delete($id)
-    {
-        return $this->returnError(
-            $this->translate('Method Not Allowed'), // @translate
-            Response::STATUS_CODE_405
-        );
-    }
-
-    public function deleteList($data)
-    {
-        return $this->returnError(
-            $this->translate('Method Not Allowed'), // @translate
-            Response::STATUS_CODE_405
-        );
-    }
-
     public function get($id)
     {
         $user = $this->checkUserAndRole($id);
@@ -112,7 +88,7 @@ class ApiController extends AbstractRestfulController
         );
     }
 
-    public function head($id = null)
+    public function create($data)
     {
         return $this->returnError(
             $this->translate('Method Not Allowed'), // @translate
@@ -120,7 +96,15 @@ class ApiController extends AbstractRestfulController
         );
     }
 
-    public function options()
+    public function update($id, $data)
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function replaceList($data)
     {
         return $this->returnError(
             $this->translate('Method Not Allowed'), // @translate
@@ -202,14 +186,6 @@ class ApiController extends AbstractRestfulController
         return new ApiJsonModel($response, $this->getViewOptions());
     }
 
-    public function replaceList($data)
-    {
-        return $this->returnError(
-            $this->translate('Method Not Allowed'), // @translate
-            Response::STATUS_CODE_405
-        );
-    }
-
     public function patchList($data)
     {
         return $this->returnError(
@@ -218,7 +194,31 @@ class ApiController extends AbstractRestfulController
         );
     }
 
-    public function update($id, $data)
+    public function delete($id)
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function deleteList($data)
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function head($id = null)
+    {
+        return $this->returnError(
+            $this->translate('Method Not Allowed'), // @translate
+            Response::STATUS_CODE_405
+        );
+    }
+
+    public function options()
     {
         return $this->returnError(
             $this->translate('Method Not Allowed'), // @translate
