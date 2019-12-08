@@ -15,9 +15,12 @@ Installation
 Install module [Guest] first.
 
 Uncompress files in the module directory and rename module folder `GuestApi`.
+Then install it like any other Omeka module and follow the config instructions.
+
+See general end user documentation for [Installing a module].
 
 
-USAGE
+Usage
 -----
 
 To update the profile, use the path /api/users/me. For example to update:
@@ -104,6 +107,7 @@ Copyright
 [Guest Api]: https://github.com/Daniel-KM/Omeka-S-module-GuestApi
 [Guest]: https://github.com/Daniel-KM/Omeka-S-module-Guest
 [Omeka S]: https://www.omeka.org/s
+[Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
 [module issues]: https://github.com/Daniel-KM/Omeka-S-module-GuestApi/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
