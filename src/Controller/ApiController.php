@@ -159,15 +159,19 @@ class ApiController extends AbstractRestfulController
         unset($data['email']);
 
         if (isset($data['o:email'])) {
-            // TODO Currently, the site is required to change the email.
-            $site = $this->userSites($user, true);
-            if (empty($site)) {
-                return $this->returnError(
-                    $this->translate('Email cannot be updated: the user is not related to a site.'), // @translate
-                    Response::STATUS_CODE_400
-                );
+            $settings = $this->settings();
+            if ($settings->get('guestapi_register_site')) {
+                $site = $this->userSites($user, true);
+                if (empty($site)) {
+                    return $this->returnError(
+                        $this->translate('Email cannot be updated: the user is not related to a site.'), // @translate
+                        Response::STATUS_CODE_400
+                    );
+                }
+            } else {
+                $site = $this->defaultSite();
             }
-            $site = $this->api()->read('sites', $site->getId())->getContent();
+
             $this->getPluginManager()->get('currentSite')->setSite($site);
             return $this->changeEmail($user, $data);
         }
@@ -301,7 +305,7 @@ class ApiController extends AbstractRestfulController
             }
         }
 
-        $emailIsValid = $this->settings()->get('guestapi_register_email_is_valid');
+        $emailIsValid = $settings->get('guestapi_register_email_is_valid');
 
         $userInfo = [];
         $userInfo['o:email'] = $data['email'];
@@ -389,19 +393,7 @@ class ApiController extends AbstractRestfulController
             //     ],
             // ], [], ['isPartial' => true]);
         } else {
-            $siteId = $this->settings()->get('default_site');
-            if ($siteId) {
-                $site = $this->getEntityManager()
-                    ->getRepository(\Omeka\Entity\Site::class)
-                    ->find(['id' => $siteId]);
-            } else {
-                $site = $this->getEntityManager()
-                    ->getRepository(\Omeka\Entity\Site::class)
-                    ->findBy([], ['id' => 'asc'], 1);
-                if ($site) {
-                    $site = reset($site);
-                }
-            }
+            $site = $this->defaultSite();
             // User is flushed when the guest user token is created.
             $this->getEntityManager()->persist($user);
         }
@@ -865,6 +857,25 @@ class ApiController extends AbstractRestfulController
             throw new Exception\InvalidJsonException('JSON: Content must be an object or array.');
         }
         return $content;
+    }
+
+    /**
+     * cf. module Next (DefaultSiteSlug).
+     *
+     * @return \Omeka\Api\Representation\SiteRepresentation
+     */
+    protected function defaultSite()
+    {
+        $api = $this->api();
+        $defaultSiteId = $this->settings()->get('default_site');
+        if ($defaultSiteId) {
+            try {
+                $response = $api->read('sites', ['id' => $defaultSiteId], ['responseContent' => 'resource']);
+                return $response->getContent();
+            } catch (\Omeka\Api\Exception\NotFoundException $e) {
+            }
+        }
+        return $api->searchOne('sites', ['sort_by' => 'id'])->getContent();
     }
 
     /**

@@ -25,7 +25,7 @@ class ConfigForm extends Form
                 'type' => Element\Checkbox::class,
                 'options' => [
                     'label' => 'Requires a site to register via api', // @translate
-                    'info' => 'If checked, a site id or slug will be required when registering via api.', // @translate
+                    'info' => 'If checked, a site id or slug will be required when registering via api. Note: when this setting is set, all previous users must be added to a site.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'guestapi-register-site',
