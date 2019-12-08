@@ -1,5 +1,5 @@
 <?php
-namespace GuestUserApi;
+namespace GuestApi;
 
 return [
     'view_manager' => [
@@ -54,18 +54,18 @@ return [
             ],
         ],
     ],
-    'guestuserapi' => [
+    'guestapi' => [
         'config' => [
-            'guestuserapi_register' => false,
-            'guestuserapi_register_site' => false,
-            'guestuserapi_register_email_is_valid' => false,
-            'guestuserapi_message_confirm_registration_subject' => 'Welcome to {main_title}!', // @translate
-            'guestuserapi_message_confirm_register' => 'Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.', // @translate
-            'guestuserapi_message_confirm_registration' => '<p>Hi {user_name},</p>
+            'guestapi_register' => false,
+            'guestapi_register_site' => false,
+            'guestapi_register_email_is_valid' => false,
+            'guestapi_message_confirm_registration_subject' => 'Welcome to {main_title}!', // @translate
+            'guestapi_message_confirm_register' => 'Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.', // @translate
+            'guestapi_message_confirm_registration' => '<p>Hi {user_name},</p>
 <p>You have registered for an account on {main_title} / {site_title} ({site_url}).</p>
 <p>Please confirm your registration by following this link: {token_url}.</p>
 <p>If you did not request to join {main_title} please disregard this email.</p>', // @translate
-            'guestuserapi_message_confirm_registration_text' => 'Hi {user_name},
+            'guestapi_message_confirm_registration_text' => 'Hi {user_name},
 You have registered for an account on {main_title} / {site_title} ({site_url}).
 Please confirm your registration by following this link: {token_url}.
 If you did not request to join {main_title} please disregard this email.', // @translate

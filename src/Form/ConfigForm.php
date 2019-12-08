@@ -1,5 +1,5 @@
 <?php
-namespace GuestUserApi\Form;
+namespace GuestApi\Form;
 
 use Zend\Form\Element;
 use Zend\Form\Form;
@@ -10,71 +10,71 @@ class ConfigForm extends Form
     {
         $this
             ->add([
-                'name' => 'guestuserapi_register',
+                'name' => 'guestapi_register',
                 'type' => Element\Checkbox::class,
                 'options' => [
                     'label' => 'Allow open registration via api', // @translate
                     'info' => 'Allow guest user registration without administrator approval via api.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'guestuserapi-register',
+                    'id' => 'guestapi-register',
                 ],
             ])
             ->add([
-                'name' => 'guestuserapi_register_site',
+                'name' => 'guestapi_register_site',
                 'type' => Element\Checkbox::class,
                 'options' => [
                     'label' => 'Requires a site to register via api', // @translate
                     'info' => 'If checked, a site id or slug will be required when registering via api.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'guestuserapi-register-site',
+                    'id' => 'guestapi-register-site',
                 ],
             ])
             ->add([
-                'name' => 'guestuserapi_register_email_is_valid',
+                'name' => 'guestapi_register_email_is_valid',
                 'type' => Element\Checkbox::class,
                 'options' => [
                     'label' => 'Validate email set by api', // @translate
                     'info' => 'If checked, the user won’t have to validate his email, so he will be able to login directly.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'guestuserapi-register-email-is-valid',
+                    'id' => 'guestapi-register-email-is-valid',
                 ],
             ])
             ->add([
-                'name' => 'guestuserapi_message_confirm_register',
+                'name' => 'guestapi_message_confirm_register',
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'Message to confirm registration via api', // @translate
                     'info' => 'The text of the response to confirm the registration via api.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'guestuserapi_message_confirm_register',
+                    'id' => 'guestapi_message_confirm_register',
                     'placeholder' => 'Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.', // @translate
                 ],
             ])
             ->add([
-                'name' => 'guestuserapi_message_confirm_registration_subject',
+                'name' => 'guestapi_message_confirm_registration_subject',
                 'type' => Element\Text::class,
                 'options' => [
                     'label' => 'Subject of message to confirm registration via api', // @translate
                     'info' => 'The subject of the email to confirm the registration via api.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'guestuserapi_message_confirm_registration_subject',
+                    'id' => 'guestapi_message_confirm_registration_subject',
                     'placeholder' => 'Welcome to {main_title}!', // @translate
                 ],
             ])
             ->add([
-                'name' => 'guestuserapi_message_confirm_registration',
+                'name' => 'guestapi_message_confirm_registration',
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'Email sent to confirm registration via api (html)', // @translate
                     'info' => 'The text of the email to confirm a registration done via email and to send the token.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'guestuserapi_message_confirm_registration',
+                    'id' => 'guestapi_message_confirm_registration',
                     'placeholder' => '<p>Hi {user_name},</p>
     <p>You have registered for an account on {main_title} / {site_title} ({site_url}).</p>
     <p>Please confirm your registration by following this link: {token_url}.</p>
@@ -82,14 +82,14 @@ class ConfigForm extends Form
                 ],
             ])
             ->add([
-                'name' => 'guestuserapi_message_confirm_registration_text',
+                'name' => 'guestapi_message_confirm_registration_text',
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'Email sent to confirm registration via api (text)', // @translate
                     'info' => 'The text version of the mail above. When the two version are filled, they are sent both.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'guestuserapi_message_confirm_registration_text',
+                    'id' => 'guestapi_message_confirm_registration_text',
                     'placeholder' => 'Hi {user_name},
     You have registered for an account on {main_title} / {site_title} ({site_url}).
     Please confirm your registration by following this link: {token_url}.

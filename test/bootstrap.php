@@ -6,5 +6,5 @@ use OmekaTestHelper\Bootstrap;
 
 Bootstrap::bootstrap(__DIR__);
 Bootstrap::loginAsAdmin();
-Bootstrap::enableModule('GuestUser');
-Bootstrap::enableModule('GuestUserApi');
+Bootstrap::enableModule('Guest');
+Bootstrap::enableModule('GuestApi');

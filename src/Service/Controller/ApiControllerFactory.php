@@ -1,7 +1,7 @@
 <?php
-namespace GuestUserApi\Service\Controller;
+namespace GuestApi\Service\Controller;
 
-use GuestUserApi\Controller\ApiController;
+use GuestApi\Controller\ApiController;
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 

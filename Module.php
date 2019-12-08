@@ -1,6 +1,6 @@
 <?php
 
-namespace GuestUserApi;
+namespace GuestApi;
 
 if (!class_exists(\Generic\AbstractModule::class)) {
     require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
@@ -17,18 +17,18 @@ class Module extends AbstractModule
 {
     const NAMESPACE = __NAMESPACE__;
 
-    protected $dependency = 'GuestUser';
+    protected $dependency = 'Guest';
 
     /**
      * {@inheritDoc}
      * @see \Omeka\Module\AbstractModule::onBootstrap()
-     * @todo Find the right way to load GuestUser before other modules in order to add role.
+     * @todo Find the right way to load Guest before other modules in order to add role.
      */
     public function onBootstrap(MvcEvent $event)
     {
         parent::onBootstrap($event);
 
-        // Manage the dependency upon GuestUser, in particular when upgrading.
+        // Manage the dependency upon Guest, in particular when upgrading.
         // Once disabled, this current method and other ones are no more called.
         if (!$this->isModuleActive($this->dependency)) {
             $this->disableModule(__NAMESPACE__);
@@ -48,11 +48,11 @@ class Module extends AbstractModule
         $acl = $services->get('Omeka\Acl');
 
         $settings = $services->get('Omeka\Settings');
-        $isApiOpenRegister = $settings->get('guestuserapi_register', false);
+        $isApiOpenRegister = $settings->get('guestapi_register', false);
         if ($isApiOpenRegister) {
             $acl->allow(
                 null,
-                [\GuestUserApi\Controller\ApiController::class],
+                [\GuestApi\Controller\ApiController::class],
                 ['register']
             );
             $acl->allow(
@@ -71,8 +71,8 @@ class Module extends AbstractModule
 
         // This is an api, so all rest api actions are allowed.
         $acl->allow(
-            [\GuestUser\Permissions\Acl::ROLE_GUEST],
-            [\GuestUserApi\Controller\ApiController::class]
+            [\Guest\Permissions\Acl::ROLE_GUEST],
+            [\GuestApi\Controller\ApiController::class]
         );
     }
 
@@ -98,7 +98,7 @@ class Module extends AbstractModule
         /** @var AuthenticationService $authentication */
         $authentication =  $services->get('Omeka\AuthenticationService');
         $user = $services->get('Omeka\AuthenticationService')->getIdentity();
-        if ($user && $user->getRole() !== \GuestUser\Permissions\Acl::ROLE_GUEST) {
+        if ($user && $user->getRole() !== \Guest\Permissions\Acl::ROLE_GUEST) {
             return;
         }
         $jsonLd = $event->getParam('jsonLd');

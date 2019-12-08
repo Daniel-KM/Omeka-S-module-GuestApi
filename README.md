@@ -1,15 +1,15 @@
-Guest User Api (module for Omeka S)
+Guest Api (module for Omeka S)
 ===================================
 
-[Guest User Api] is a module for [Omeka S] that allows to manage the actions of
-the module [Guest User] by an api, in particular to register and to update
+[Guest Api] is a module for [Omeka S] that allows to manage the actions of
+the module [Guest] by an api, in particular to register and to update
 profile.
 
 
 Installation
 ------------
 
-Uncompress files in the module directory and rename module folder `GuestUserApi`.
+Uncompress files in the module directory and rename module folder `GuestApi`.
 
 
 Warning
@@ -65,10 +65,10 @@ Copyright
 * Copyright Daniel Berthereau, 2019 (see [Daniel-KM] on GitHub)
 
 
-[Guest User Api]: https://github.com/biblibre/Omeka-S-module-GuestUserApi
-[Guest User]: https://github.com/biblibre/Omeka-S-module-GuestUser
+[Guest Api]: https://github.com/biblibre/Omeka-S-module-GuestApi
+[Guest]: https://github.com/biblibre/Omeka-S-module-Guest
 [Omeka S]: https://www.omeka.org/s
-[module issues]: https://github.com/biblibre/Omeka-S-module-GuestUserApi/issues
+[module issues]: https://github.com/biblibre/Omeka-S-module-GuestApi/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org

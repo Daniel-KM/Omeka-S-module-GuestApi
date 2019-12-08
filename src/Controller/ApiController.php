@@ -1,9 +1,9 @@
 <?php
-namespace GuestUserApi\Controller;
+namespace GuestApi\Controller;
 
 use Doctrine\ORM\EntityManager;
-use GuestUser\Entity\GuestUserToken;
-use GuestUser\Stdlib\PsrMessage;
+use Guest\Entity\GuestToken;
+use Guest\Stdlib\PsrMessage;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Entity\User;
 use Omeka\Entity\SitePermission;
@@ -281,7 +281,7 @@ class ApiController extends AbstractRestfulController
 
         $site = null;
         $settings = $this->settings();
-        if ($settings->get('guestuserapi_register_site')) {
+        if ($settings->get('guestapi_register_site')) {
             if (empty($data['site'])) {
                 return $this->returnError(
                     $this->translate('A site is required to register.') // @translate
@@ -301,13 +301,13 @@ class ApiController extends AbstractRestfulController
             }
         }
 
-        $emailIsValid = $this->settings()->get('guestuserapi_register_email_is_valid');
+        $emailIsValid = $this->settings()->get('guestapi_register_email_is_valid');
 
         $userInfo = [];
         $userInfo['o:email'] = $data['email'];
         $userInfo['o:name'] = $data['username'];
         // TODO Avoid to set the right to change role (fix core).
-        $userInfo['o:role'] = \GuestUser\Permissions\Acl::ROLE_GUEST;
+        $userInfo['o:role'] = \Guest\Permissions\Acl::ROLE_GUEST;
         $userInfo['o:is_active'] = false;
 
         $response = $this->api()->create('users', $userInfo);
@@ -318,10 +318,10 @@ class ApiController extends AbstractRestfulController
                 'email' => $userInfo['o:email'],
             ]);
             if ($user) {
-                /** @var \GuestUser\Entity\GuestUserToken $guestUserToken */
-                $guestUserToken = $entityManager->getRepository(GuestUserToken::class)
+                /** @var \Guest\Entity\GuestToken $guestToken */
+                $guestToken = $entityManager->getRepository(GuestToken::class)
                     ->findOneBy(['email' => $userInfo['o:email']], ['id' => 'DESC']);
-                if (empty($guestUserToken) || $guestUserToken->isConfirmed()) {
+                if (empty($guestToken) || $guestToken->isConfirmed()) {
                     return $this->returnError(
                         $this->translate('Already registered.') // @translate
                     );
@@ -329,16 +329,16 @@ class ApiController extends AbstractRestfulController
 
                 // This is a second registration, but the token is not set, but
                 // the option may have been updated.
-                if ($guestUserToken && $emailIsValid) {
-                    $guestUserToken->setConfirmed(true);
-                    $this->getEntityManager()->persist($guestUserToken);
+                if ($guestToken && $emailIsValid) {
+                    $guestToken->setConfirmed(true);
+                    $this->getEntityManager()->persist($guestToken);
                     $this->getEntityManager()->flush();
                     return $this->returnError(
                         $this->translate('Already registered.') // @translate
                     );
                 }
 
-                $message = $this->settings()->get('guestuserapi_message_confirm_register')
+                $message = $this->settings()->get('guestapi_message_confirm_register')
                     ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
                 $result = [
                     'status' => Response::STATUS_CODE_200,
@@ -356,7 +356,7 @@ class ApiController extends AbstractRestfulController
         /** @var \Omeka\Entity\User $user */
         $user = $response->getContent()->getEntity();
         $user->setPassword($data['password']);
-        $user->setRole(\GuestUser\Permissions\Acl::ROLE_GUEST);
+        $user->setRole(\Guest\Permissions\Acl::ROLE_GUEST);
         // The account is active, but not confirmed, so login is not possible.
         // Guest user has no right to set active his account.
         // Except if the option "email is valid" is set.
@@ -411,20 +411,20 @@ class ApiController extends AbstractRestfulController
 
         if ($emailIsValid) {
             $this->getEntityManager()->flush();
-            $guestUserToken = null;
+            $guestToken = null;
         } else {
-            $guestUserToken = $this->createGuestUserToken($user);
+            $guestToken = $this->createGuestToken($user);
         }
         $message = $this->prepareMessage('register-email-api', [
             'user_name' => $user->getName(),
             'user_email' => $user->getEmail(),
-            'token' => $guestUserToken,
+            'token' => $guestToken,
             'site' => $site,
         ]);
         $messageText = $this->prepareMessage('register-email-api-text', [
             'user_name' => $user->getName(),
             'user_email' => $user->getEmail(),
-            'token' => $guestUserToken,
+            'token' => $guestToken,
             'site' => $site,
         ]);
         $fromEmail = $this->settings()->get('administrator_email');
@@ -446,10 +446,10 @@ class ApiController extends AbstractRestfulController
         }
 
         if ($emailIsValid) {
-            $message = $this->settings()->get('guestuserapi_message_confirm_register')
+            $message = $this->settings()->get('guestapi_message_confirm_register')
                 ?: $this->translate('Thank you for registering. You can now log in and use the library.'); // @translate
         } else {
-            $message = $this->settings()->get('guestuserapi_message_confirm_register')
+            $message = $this->settings()->get('guestapi_message_confirm_register')
                 ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
         }
         $result = [
@@ -488,7 +488,7 @@ class ApiController extends AbstractRestfulController
         // The check of the role is only a security, rights are set in Module.
         /** @var \Omeka\Entity\User $user */
         $user = $this->identity();
-        if (!$user || $user->getRole() !== \GuestUser\Permissions\Acl::ROLE_GUEST) {
+        if (!$user || $user->getRole() !== \Guest\Permissions\Acl::ROLE_GUEST) {
             return null;
         }
 
@@ -545,7 +545,7 @@ class ApiController extends AbstractRestfulController
     /**
      * Update email.
      *
-     * @todo Factorize with GuestUser.
+     * @todo Factorize with Guest.
      *
      * @param User $user
      * @param array $data
@@ -592,16 +592,16 @@ class ApiController extends AbstractRestfulController
 
         $site = $this->currentSite();
 
-        $guestUserToken = $this->createGuestUserToken($user);
+        $guestToken = $this->createGuestToken($user);
         $message = $this->prepareMessage('update-email', [
             'user_email' => $email,
             'user_name' => $user->getName(),
-            'token' => $guestUserToken,
+            'token' => $guestToken,
         ], $site);
         $result = $this->sendEmail($email, $message['subject'], $message['body'], $user->getName());
         if (!$result) {
             $message = new Message($this->translate('An error occurred when the email was sent.')); // @translate
-            $this->logger()->err('[GuestUserApi] ' . $message);
+            $this->logger()->err('[GuestApi] ' . $message);
             return $this->returnError(
                 $message,
                 Response::STATUS_CODE_500
@@ -643,7 +643,7 @@ class ApiController extends AbstractRestfulController
     {
         $settings = $this->settings();
         $site = $site ?: $this->currentSite();
-        if ((isset($data['token']) || $settings->get('guestuserapi_register_site')) && empty($site)) {
+        if ((isset($data['token']) || $settings->get('guestapi_register_site')) && empty($site)) {
             throw new \Exception('Missing site.'); // @translate
         }
         $default = [
@@ -671,28 +671,28 @@ class ApiController extends AbstractRestfulController
         switch ($template) {
             case 'confirm-email':
                 $subject = 'Your request to join {main_title} / {site_title}'; // @translate
-                $body = $settings->get('guestuser_message_confirm_email',
-                    $this->getConfig()['guestuser']['config']['guestuser_message_confirm_email']);
+                $body = $settings->get('guest_message_confirm_email',
+                    $this->getConfig()['guest']['config']['guest_message_confirm_email']);
                 break;
 
             case 'update-email':
                 $subject = 'Update email on {main_title} / {site_title}'; // @translate
-                $body = $settings->get('guestuser_message_update_email',
-                    $this->getConfig()['guestuser']['config']['guestuser_message_update_email']);
+                $body = $settings->get('guest_message_update_email',
+                    $this->getConfig()['guest']['config']['guest_message_update_email']);
                 break;
 
             case 'register-email-api':
-                $subject = $settings->get('guestuserapi_message_confirm_registration_subject',
-                    $this->getConfig()['guestuserapi']['config']['guestuserapi_message_confirm_registration_subject']);
-                $body = $settings->get('guestuserapi_message_confirm_registration',
-                    $this->getConfig()['guestuserapi']['config']['guestuserapi_message_confirm_registration']);
+                $subject = $settings->get('guestapi_message_confirm_registration_subject',
+                    $this->getConfig()['guestapi']['config']['guestapi_message_confirm_registration_subject']);
+                $body = $settings->get('guestapi_message_confirm_registration',
+                    $this->getConfig()['guestapi']['config']['guestapi_message_confirm_registration']);
                 break;
 
             case 'register-email-api-text':
-                $subject = $settings->get('guestuserapi_message_confirm_registration_subject',
-                    $this->getConfig()['guestuserapi']['config']['guestuserapi_message_confirm_registration_subject']);
-                $body = $settings->get('guestuserapi_message_confirm_registration_text',
-                    $this->getConfig()['guestuserapi']['config']['guestuserapi_message_confirm_registration_text']);
+                $subject = $settings->get('guestapi_message_confirm_registration_subject',
+                    $this->getConfig()['guestapi']['config']['guestapi_message_confirm_registration_subject']);
+                $body = $settings->get('guestapi_message_confirm_registration_text',
+                    $this->getConfig()['guestapi']['config']['guestapi_message_confirm_registration_text']);
                 break;
 
                 // Allows to manage derivative modules.

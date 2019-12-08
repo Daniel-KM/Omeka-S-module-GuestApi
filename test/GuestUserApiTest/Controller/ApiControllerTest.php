@@ -1,18 +1,18 @@
 <?php
 
-namespace GuestUserApiTest\Controller;
+namespace GuestApiTest\Controller;
 
 use Zend\Form\Element\Csrf;
-use GuestUser\Entity\GuestUserToken;
+use Guest\Entity\GuestToken;
 
-class ApiControllerTest extends GuestUserControllerTestCase
+class ApiControllerTest extends GuestControllerTestCase
 {
-    protected $guestUser;
+    protected $guest;
 
     public function tearDown()
     {
         $this->loginAsAdmin();
-        $this->deleteGuestUser();
+        $this->deleteGuest();
         parent::tearDown();
     }
 
@@ -48,9 +48,9 @@ class ApiControllerTest extends GuestUserControllerTestCase
     /**
      * @test
      */
-    public function tokenlinkShouldValidateGuestUser()
+    public function tokenlinkShouldValidateGuest()
     {
-        $user = $this->createGuestUser();
+        $user = $this->createGuest();
         $userToken = $this->getUserToken($user->email());
         $this->dispatch('/s/test/guest/confirm?token='.$userToken->getToken());
         $this->assertTrue($userToken->isConfirmed());
@@ -61,9 +61,9 @@ class ApiControllerTest extends GuestUserControllerTestCase
     /**
      * @test
      */
-    public function wrongTokenlinkShouldNotValidateGuestUser()
+    public function wrongTokenlinkShouldNotValidateGuest()
     {
-        $user = $this->createGuestUser();
+        $user = $this->createGuest();
         $this->dispatch('/s/test/guest/confirm?token=1234');
 
         $this->assertFalse($this->getUserToken($user->email())->isConfirmed());
@@ -74,7 +74,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
      */
     public function updateAccountWithNoPassword()
     {
-        $user = $this->createGuestUser();
+        $user = $this->createGuest();
         $em = $this->getEntityManager();
         $this->getUserToken($user->email())->setConfirmed(true);
         $em->flush();
@@ -96,13 +96,13 @@ class ApiControllerTest extends GuestUserControllerTestCase
      */
     public function deleteUnconfirmedUserShouldRemoveToken()
     {
-        $user = $this->createGuestUser();
+        $user = $this->createGuest();
         $userId = $user->id();
         $em = $this->getEntityManager();
 
-        $this->deleteGuestUser();
+        $this->deleteGuest();
 
-        $userToken = $em->getRepository(GuestUserToken::class)
+        $userToken = $em->getRepository(GuestToken::class)
             ->findOneBy(['user' => $userId]);
         $this->assertNull($userToken);
     }
@@ -117,7 +117,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
         session_write_close();
         session_start();
 
-        $user = $this->createGuestUser();
+        $user = $this->createGuest();
         $this->logout();
 
         $csrf = new Csrf('loginform_csrf');
@@ -157,7 +157,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
      */
     public function logoutShouldLogoutUser()
     {
-        $this->createGuestUser();
+        $this->createGuest();
         $this->login('guest@test.fr', 'test');
         $this->dispatch('/s/test/guest/logout');
         $auth = $this->getServiceLocator()->get('Omeka\AuthenticationService');
@@ -179,7 +179,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
         $this->assertRedirect('/s/test');
     }
 
-    protected function createGuestUser()
+    protected function createGuest()
     {
         $em = $this->getEntityManager();
 
@@ -194,7 +194,7 @@ class ApiControllerTest extends GuestUserControllerTestCase
         $userEntity = $user->getEntity();
         $userEntity->setPassword('test');
 
-        $guest = new GuestUserToken;
+        $guest = new GuestToken;
         $guest->setEmail($email);
         $guest->setUser($userEntity);
         $guest->setToken(sha1('tOkenS@1t' . microtime()));
@@ -204,23 +204,23 @@ class ApiControllerTest extends GuestUserControllerTestCase
         $em->persist($guest);
         $em->flush();
 
-        $this->guestUser = $user;
+        $this->guest = $user;
 
         return $user;
     }
 
-    protected function deleteGuestUser()
+    protected function deleteGuest()
     {
-        if (isset($this->guestUser)) {
-            $this->api()->delete('users', $this->guestUser->id());
-            $this->guestUser = null;
+        if (isset($this->guest)) {
+            $this->api()->delete('users', $this->guest->id());
+            $this->guest = null;
         }
     }
 
     protected function getUserToken($email)
     {
         $em = $this->getEntityManager();
-        $repository = $em->getRepository(GuestUserToken::class);
+        $repository = $em->getRepository(GuestToken::class);
         if ($users = $repository->findBy(['email' => $email])) {
             return array_shift($users);
         }
