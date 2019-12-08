@@ -1,9 +1,12 @@
 Guest Api (module for Omeka S)
 ===================================
 
-[Guest Api] is a module for [Omeka S] that allows to manage the actions of
-the module [Guest] by an api, in particular to register and to update
+[Guest Api] is a module for [Omeka S] that allows to manage the actions of the
+module [Guest] by an api, in particular to register and to update its own
 profile.
+
+The guest api does not replace the standard api (/api/users/#id), but add some
+checks and features.
 
 
 Installation
@@ -12,6 +15,39 @@ Installation
 Install module [Guest] first.
 
 Uncompress files in the module directory and rename module folder `GuestApi`.
+
+
+USAGE
+-----
+
+To update the profile, use the path /api/users/me. For example to update:
+- email: /api/users/me?email=elisabeth.ii@example.com
+- name: /api/users/me?name=elisabeth_ii
+- password: /api/users/me?password=xxx&new_password=yyy
+
+Four specific paths are added:
+
+- /api/login
+  The user can login with `/api/login?email=elisabeth.ii@example.com&password=***`.
+  In return, a session token will be returned. All other actions can be done
+  with them: `/api/users/me?key_identity=xxx&key_credential=yyy`.
+
+- /api/logout
+
+- /api/session-token
+  A session token can be created for api access. It is reset each login or
+  logout. The api keys has no limited life in Omeka.
+
+- /api/register
+  A visitor can register too, if allowed in the config. Register requires an
+  email. Other params are optional: `username`, `password`, and `site` (id or
+  slug, that may be required via the config).
+
+In all other cases, use the standard api (/api/users/#id).
+
+**Important**: For security, only guest users can use these methods currently.
+
+**Warning**: The paths above may be changed in a future version to be more restful.
 
 
 TODO
