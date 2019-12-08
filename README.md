@@ -14,6 +14,13 @@ Install module [Guest] first.
 Uncompress files in the module directory and rename module folder `GuestApi`.
 
 
+TODO
+----
+
+- Enable login via third parties.
+- Normalize all api routes for restapi (register, login, logout, session-token).
+
+
 Warning
 -------
 

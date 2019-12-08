@@ -61,13 +61,13 @@ class Module extends AbstractModule
             $acl->allow(
                 null,
                 [\GuestApi\Controller\ApiController::class],
-                ['session-token']
+                ['login', 'session-token']
             );
         } else {
             $acl->allow(
                 null,
                 [\GuestApi\Controller\ApiController::class],
-                ['register', 'session-token']
+                ['login', 'session-token', 'register']
             );
             $acl->allow(
                 null,
@@ -111,7 +111,7 @@ class Module extends AbstractModule
     {
         $services = $this->getServiceLocator();
         /** @var AuthenticationService $authentication */
-        $authentication =  $services->get('Omeka\AuthenticationService');
+        $authentication = $services->get('Omeka\AuthenticationService');
         $user = $services->get('Omeka\AuthenticationService')->getIdentity();
         if ($user && $user->getRole() !== \Guest\Permissions\Acl::ROLE_GUEST) {
             return;

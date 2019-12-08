@@ -233,12 +233,83 @@ class ApiController extends AbstractRestfulController
         );
     }
 
+    /**
+     * Login via api.
+     *
+     * Here, it's not the true api, so there may be credentials that are not checked.
+     * @todo Use the true api to login.
+     *
+     * @return \Omeka\View\Model\ApiJsonModel
+     */
+    public function loginAction()
+    {
+        if ($this->isUserLogged()) {
+            return $this->returnError(
+                $this->translate('User cannot register: already logged.') // @translate
+            );
+        }
+
+        $data = $this->params()->fromQuery();
+
+        if (!isset($data['email'])) {
+            return $this->returnError(
+                $this->translate('Email is required.') // @translate
+            );
+        }
+
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            return $this->returnError(
+                $this->translate('Invalid email.') // @translate
+            );
+        }
+
+        if (!isset($data['password'])) {
+            return $this->returnError(
+                $this->translate('Password is required.') // @translate
+            );
+        }
+
+        // TODO Manage authentication via api for via third parties.
+        // Process authentication via entity manager.
+        /** @var \Omeka\Entity\User $user */
+        $entityManager = $this->getEntityManager();
+        $user = $entityManager->getRepository(User::class)->findOneBy([
+            'email' => $data['email'],
+            // Limited to role "guest" for security.
+            'role' => \Guest\Permissions\Acl::ROLE_GUEST,
+            'isActive' => true,
+        ]);
+
+        if (!$user) {
+            return $this->returnError(
+                $this->translate('Wrong email or password.') // @translate
+            );
+        }
+
+        if (!$user->verifyPassword($data['password'])) {
+            return $this->returnError(
+                // Same message as above for security.
+                $this->translate('Wrong email or password.') // @translate
+            );
+        }
+
+        $eventManager = $this->getEventManager();
+        $eventManager->trigger('user.login', $user);
+
+        return $this->returnSessionToken($user);
+    }
+
     public function sessionTokenAction()
     {
-        $sessionToken = $this->prepareSessionToken();
-        $response = new \Omeka\Api\Response;
-        $response->setContent($sessionToken ?: []);
-        return new ApiJsonModel($response, $this->getViewOptions());
+        /** @var \Omeka\Entity\User $user */
+        $user = $this->getAuthenticationService()->getIdentity();
+        if (!$user) {
+            return $this->returnError(
+                $this->translate('Access forbidden.'), // @translate
+                Response::STATUS_CODE_403
+            );
+        }
+        return $this->returnSessionToken($user);
     }
 
     /**
@@ -625,14 +696,8 @@ class ApiController extends AbstractRestfulController
         return new ApiJsonModel($result, $this->getViewOptions());
     }
 
-    protected function prepareSessionToken()
+    protected function prepareSessionToken(User $user)
     {
-        /** @var \Omeka\Entity\User $user */
-        $user = $this->getAuthenticationService()->getIdentity();
-        if (!$user) {
-            return null;
-        }
-
         // Remove all existing session tokens.
         $keys = $user->getKeys();
         foreach ($keys as $keyId => $key) {
@@ -652,12 +717,22 @@ class ApiController extends AbstractRestfulController
 
         $this->entityManager->flush();
 
-        $user = $this->api()->read('users', ['id' => $user->getId()], [], ['responseContent' => 'reference'])->getContent();
         return [
-            'o:user' => $user,
+            'o:user' => [
+                '@id' => $this->url()->fromRoute('api/default', ['resource' => 'users', 'id' => $user->getId()], ['force_canonical' => true]),
+                'o:id' => $user->getId()
+            ],
             'key_identity' => $keyId,
             'key_credential' => $keyCredential,
         ];
+    }
+
+    protected function returnSessionToken(User $user)
+    {
+        $sessionToken = $this->prepareSessionToken($user);
+        $response = new \Omeka\Api\Response;
+        $response->setContent($sessionToken ?: []);
+        return new ApiJsonModel($response, $this->getViewOptions());
     }
 
     protected function returnError($message, $statusCode = Response::STATUS_CODE_400, array $errors = null)
