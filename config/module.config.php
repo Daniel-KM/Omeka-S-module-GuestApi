@@ -22,11 +22,13 @@ return [
             'api' => [
                 'child_routes' => [
                     'guest' => [
-                        'type' => \Zend\Router\Http\Segment::class,
+                        'type' => \Zend\Router\Http\Literal::class,
                         'options' => [
-                            'route' => '/user[/:id]',
+                            'route' => '/users/me',
                             'defaults' => [
                                 'controller' => Controller\ApiController::class,
+                                'resource' => 'users',
+                                'id' => 'me',
                             ],
                         ],
                     ],
