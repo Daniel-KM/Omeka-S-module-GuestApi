@@ -6,6 +6,11 @@ use Zend\Form\Form;
 
 class ConfigForm extends Form
 {
+    /**
+     * @var array
+     */
+    protected $roles;
+
     public function init()
     {
         $this
@@ -101,6 +106,34 @@ class ConfigForm extends Form
     If you did not request to join {main_title} please disregard this email.', // @translate
                 ],
             ])
+            ->add([
+                'name' => 'guestapi_login_roles',
+                'type' => \Zend\Form\Element\Select::class,
+                'options' => [
+                    'label' => 'Roles that can login', // @translate
+                    'info' => 'To allow full access via api increases risks of intrusion.', // @translate
+                    'empty_option' => '',
+                    'value_options' => $this->getRoles(),
+                ],
+                'attributes' => [
+                    'id' => 'guestapi-login-roles',
+                    'multiple' => true,
+                    'required' => false,
+                    'class' => 'chosen-select',
+                    'data-placeholder' => 'Select roles…', // @translate
+                ],
+            ])
         ;
+    }
+
+    public function setRoles(array $roles)
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+
+    protected function getRoles()
+    {
+        return $this->roles;
     }
 }

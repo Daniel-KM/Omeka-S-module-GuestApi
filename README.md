@@ -23,6 +23,10 @@ See general end user documentation for [Installing a module].
 Usage
 -----
 
+First, specify the roles that can login by api in the config form of the module.
+Note that to allow any roles to login, in particular global admins, increase the
+access points to check for security.
+
 To update the profile, use the path /api/users/me. For example to update:
 - email: /api/users/me?email=elisabeth.ii@example.com
 - name: /api/users/me?name=elisabeth_ii

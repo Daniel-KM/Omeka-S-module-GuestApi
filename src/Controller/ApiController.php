@@ -206,7 +206,6 @@ class ApiController extends \Omeka\Controller\ApiController
         $user = $this->entityManager->getRepository(User::class)->findOneBy([
             'email' => $data['email'],
             // Limited to role "guest" for security.
-            'role' => \Guest\Permissions\Acl::ROLE_GUEST,
             'isActive' => true,
         ]);
 
@@ -220,6 +219,14 @@ class ApiController extends \Omeka\Controller\ApiController
             return $this->returnError(
                 // Same message as above for security.
                 $this->translate('Wrong email or password.') // @translate
+            );
+        }
+
+        $role = $user->getRole();
+        $loginRoles = $this->settings()->get('guestapi_login_roles', []);
+        if (!in_array($role, $loginRoles)) {
+            return $this->returnError(
+                sprintf($this->translate('Role "%s" is not allowed to login via api.'), $role) // @translate
             );
         }
 
