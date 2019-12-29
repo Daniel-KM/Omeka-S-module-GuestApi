@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-09 00:00+0100\n"
+"POT-Creation-Date: 2019-12-30 00:00+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,8 +18,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: src/Controller/ApiController.php:64 src/Controller/ApiController.php:92
-#: src/Controller/ApiController.php:112 src/Controller/ApiController.php:268
-#: src/Controller/ApiController.php:287
+#: src/Controller/ApiController.php:112 src/Controller/ApiController.php:275
+#: src/Controller/ApiController.php:294
 msgid "Access forbidden."
 msgstr ""
 
@@ -34,15 +34,15 @@ msgstr ""
 msgid "Page not found"
 msgstr ""
 
-#: src/Controller/ApiController.php:179 src/Controller/ApiController.php:294
+#: src/Controller/ApiController.php:179 src/Controller/ApiController.php:301
 msgid "User cannot register: already logged."
 msgstr ""
 
-#: src/Controller/ApiController.php:187 src/Controller/ApiController.php:310
+#: src/Controller/ApiController.php:187 src/Controller/ApiController.php:317
 msgid "Email is required."
 msgstr ""
 
-#: src/Controller/ApiController.php:193 src/Controller/ApiController.php:316
+#: src/Controller/ApiController.php:193 src/Controller/ApiController.php:323
 msgid "Invalid email."
 msgstr ""
 
@@ -50,107 +50,112 @@ msgstr ""
 msgid "Password is required."
 msgstr ""
 
-#: src/Controller/ApiController.php:215 src/Controller/ApiController.php:222
+#: src/Controller/ApiController.php:214 src/Controller/ApiController.php:221
 msgid "Wrong email or password."
 msgstr ""
 
-#: src/Controller/ApiController.php:238
+#: src/Controller/ApiController.php:229
+#, php-format
+msgid "Role \"%s\" is not allowed to login via api."
+msgstr ""
+
+#: src/Controller/ApiController.php:245
 msgid "User not logged."
 msgstr ""
 
-#: src/Controller/ApiController.php:254
+#: src/Controller/ApiController.php:261
 msgid "Successfully logout."
 msgstr ""
 
-#: src/Controller/ApiController.php:333
+#: src/Controller/ApiController.php:340
 msgid "A site is required to register."
 msgstr ""
 
-#: src/Controller/ApiController.php:345
+#: src/Controller/ApiController.php:352
 msgid "The site doesn’t exist."
 msgstr ""
 
-#: src/Controller/ApiController.php:371 src/Controller/ApiController.php:382
+#: src/Controller/ApiController.php:378 src/Controller/ApiController.php:389
 msgid "Already registered."
 msgstr ""
 
-#: src/Controller/ApiController.php:387 src/Controller/ApiController.php:486
+#: src/Controller/ApiController.php:394 src/Controller/ApiController.php:493
 msgid ""
 "Thank you for registering. Please check your email for a confirmation "
 "message. Once you have confirmed your request, you will be able to log in."
 msgstr ""
 
-#: src/Controller/ApiController.php:396
+#: src/Controller/ApiController.php:403
 msgid "Unknown error."
 msgstr ""
 
-#: src/Controller/ApiController.php:476 src/Controller/ApiController.php:710
+#: src/Controller/ApiController.php:483 src/Controller/ApiController.php:717
 msgid "An error occurred when the email was sent."
 msgstr ""
 
-#: src/Controller/ApiController.php:483
+#: src/Controller/ApiController.php:490
 msgid "Thank you for registering. You can now log in and use the library."
 msgstr ""
 
-#: src/Controller/ApiController.php:543
+#: src/Controller/ApiController.php:550
 msgid "Request is empty."
 msgstr ""
 
-#: src/Controller/ApiController.php:568
+#: src/Controller/ApiController.php:575
 msgid "Email cannot be updated: the user is not related to a site."
 msgstr ""
 
-#: src/Controller/ApiController.php:589
+#: src/Controller/ApiController.php:596
 msgid "Your request contains metadata that cannot be updated."
 msgstr ""
 
-#: src/Controller/ApiController.php:596
+#: src/Controller/ApiController.php:603
 msgid "The new name is empty."
 msgstr ""
 
-#: src/Controller/ApiController.php:610
+#: src/Controller/ApiController.php:617
 msgid "You cannot update password and another data in the same time."
 msgstr ""
 
-#: src/Controller/ApiController.php:616
+#: src/Controller/ApiController.php:623
 msgid "Existing password empty."
 msgstr ""
 
-#: src/Controller/ApiController.php:622
+#: src/Controller/ApiController.php:629
 msgid "New password empty."
 msgstr ""
 
-#: src/Controller/ApiController.php:628
+#: src/Controller/ApiController.php:635
 msgid "New password should have 6 characters or more."
 msgstr ""
 
-#: src/Controller/ApiController.php:636
+#: src/Controller/ApiController.php:643
 msgid "Wrong password."
 msgstr ""
 
-#: src/Controller/ApiController.php:665
+#: src/Controller/ApiController.php:672
 msgid "You cannot update email and another data in the same time."
 msgstr ""
 
-#: src/Controller/ApiController.php:671
+#: src/Controller/ApiController.php:678
 msgid "New email empty."
 msgstr ""
 
-#: src/Controller/ApiController.php:678
+#: src/Controller/ApiController.php:685
 #, php-format
 msgid "\"%1$s\" is not an email."
 msgstr ""
 
-#: src/Controller/ApiController.php:685
+#: src/Controller/ApiController.php:692
 msgid "The new email is the same than the current one."
 msgstr ""
 
-#: src/Controller/ApiController.php:695
+#: src/Controller/ApiController.php:702
 #, php-format
 msgid "The email \"%s\" is not yours."
 msgstr ""
 
-#: src/Controller/ApiController.php:718
+#: src/Controller/ApiController.php:725
 #, php-format
 msgid "Check your email \"%s\" to confirm the change."
 msgstr ""
@@ -172,74 +177,74 @@ msgid ""
 "unavailable."
 msgstr ""
 
-#: src/Form/ConfigForm.php:16
+#: src/Form/ConfigForm.php:21
 msgid "Registration via api"
 msgstr ""
 
-#: src/Form/ConfigForm.php:17
+#: src/Form/ConfigForm.php:22
 msgid ""
 "Allow guest user registration with or without administrator approval via api."
 msgstr ""
 
-#: src/Form/ConfigForm.php:19
+#: src/Form/ConfigForm.php:24
 msgid "Open to everyone"
 msgstr ""
 
-#: src/Form/ConfigForm.php:21
+#: src/Form/ConfigForm.php:26
 msgid "Closed to visitors"
 msgstr ""
 
-#: src/Form/ConfigForm.php:32
+#: src/Form/ConfigForm.php:37
 msgid "Requires a site to register via api"
 msgstr ""
 
-#: src/Form/ConfigForm.php:33
+#: src/Form/ConfigForm.php:38
 msgid ""
 "If checked, a site id or slug will be required when registering via api. "
 "Note: when this setting is set, all previous users must be added to a site."
 msgstr ""
 
-#: src/Form/ConfigForm.php:43
+#: src/Form/ConfigForm.php:48
 msgid "Validate email set by api"
 msgstr ""
 
-#: src/Form/ConfigForm.php:44
+#: src/Form/ConfigForm.php:49
 msgid ""
 "If checked, the user won’t have to validate his email, so he will be able to "
 "login directly."
 msgstr ""
 
-#: src/Form/ConfigForm.php:54
+#: src/Form/ConfigForm.php:59
 msgid "Message to confirm registration via api"
 msgstr ""
 
-#: src/Form/ConfigForm.php:55
+#: src/Form/ConfigForm.php:60
 msgid "The text of the response to confirm the registration via api."
 msgstr ""
 
-#: src/Form/ConfigForm.php:66
+#: src/Form/ConfigForm.php:71
 msgid "Subject of message to confirm registration via api"
 msgstr ""
 
-#: src/Form/ConfigForm.php:67
+#: src/Form/ConfigForm.php:72
 msgid "The subject of the email to confirm the registration via api."
 msgstr ""
 
-#: src/Form/ConfigForm.php:71 config/module.config.php:94
+#: src/Form/ConfigForm.php:76 config/module.config.php:94
 msgid "Welcome to {main_title}!"
 msgstr ""
 
-#: src/Form/ConfigForm.php:78
+#: src/Form/ConfigForm.php:83
 msgid "Email sent to confirm registration via api (html)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:79
+#: src/Form/ConfigForm.php:84
 msgid ""
 "The text of the email to confirm a registration done via email and to send "
 "the token."
 msgstr ""
 
-#: src/Form/ConfigForm.php:83
+#: src/Form/ConfigForm.php:88
 msgid ""
 "<p>Hi {user_name},</p>\n"
 "    <p>You have registered for an account on {main_title} / {site_title} "
@@ -250,17 +255,17 @@ msgid ""
 "email.</p>"
 msgstr ""
 
-#: src/Form/ConfigForm.php:93
+#: src/Form/ConfigForm.php:98
 msgid "Email sent to confirm registration via api (text)"
 msgstr ""
 
-#: src/Form/ConfigForm.php:94
+#: src/Form/ConfigForm.php:99
 msgid ""
 "The text version of the mail above. When the two version are filled, they "
 "are sent both."
 msgstr ""
 
-#: src/Form/ConfigForm.php:98
+#: src/Form/ConfigForm.php:103
 msgid ""
 "Hi {user_name},\n"
 "    You have registered for an account on {main_title} / {site_title} "
@@ -269,23 +274,35 @@ msgid ""
 "    If you did not request to join {main_title} please disregard this email."
 msgstr ""
 
-#: src/Controller/ApiController.php:799
+#: src/Form/ConfigForm.php:113
+msgid "Roles that can login"
+msgstr ""
+
+#: src/Form/ConfigForm.php:114
+msgid "To allow full access via api increases risks of intrusion."
+msgstr ""
+
+#: src/Form/ConfigForm.php:123
+msgid "Select roles…"
+msgstr ""
+
+#: src/Controller/ApiController.php:806
 msgid "Missing site."
 msgstr ""
 
-#: src/Controller/ApiController.php:825
+#: src/Controller/ApiController.php:832
 msgid "Your request to join {main_title} / {site_title}"
 msgstr ""
 
-#: src/Controller/ApiController.php:831
+#: src/Controller/ApiController.php:838
 msgid "Update email on {main_title} / {site_title}"
 msgstr ""
 
-#: src/Controller/ApiController.php:852
+#: src/Controller/ApiController.php:859
 msgid "[No subject]"
 msgstr ""
 
-#: src/Controller/ApiController.php:853
+#: src/Controller/ApiController.php:860
 msgid "[No message]"
 msgstr ""
 
