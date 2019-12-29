@@ -51,7 +51,7 @@ class Module extends AbstractModule
      */
     protected function addAclRoleAndRules()
     {
-        /** @var \Zend\Permissions\Acl $acl */
+        /** @var \Omeka\Permissions\Acl $acl */
         $services = $this->getServiceLocator();
         $acl = $services->get('Omeka\Acl');
 
@@ -110,7 +110,7 @@ class Module extends AbstractModule
     public function filterEntityJsonLd(Event $event)
     {
         $services = $this->getServiceLocator();
-        /** @var AuthenticationService $authentication */
+        /** @var \Zend\Authentication\AuthenticationService $authentication */
         $authentication = $services->get('Omeka\AuthenticationService');
         $user = $services->get('Omeka\AuthenticationService')->getIdentity();
         if ($user && $user->getRole() !== \Guest\Permissions\Acl::ROLE_GUEST) {

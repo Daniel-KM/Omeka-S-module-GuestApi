@@ -101,11 +101,11 @@ return [
 You have registered for an account on {main_title} / {site_title} ({site_url}).
 Please confirm your registration by following this link: {token_url}.
 If you did not request to join {main_title} please disregard this email.', // @translate
-        ],
-        'guestapi_login_roles' => [
-            'annotator',
-            'contributor',
-            'guest',
+            'guestapi_login_roles' => [
+                'annotator',
+                'contributor',
+                'guest',
+            ],
         ],
     ],
 ];
