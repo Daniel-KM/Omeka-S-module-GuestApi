@@ -79,7 +79,7 @@ class ApiController extends \Omeka\Controller\ApiController
 
     public function get($id)
     {
-        $user = $this->checkUserAndRole($id);
+        $user = $this->authenticationService->getIdentity();
         if (!$user) {
             return $this->returnError(
                 $this->translate('Access forbidden.'), // @translate
@@ -107,7 +107,7 @@ class ApiController extends \Omeka\Controller\ApiController
 
     public function update($id, $data)
     {
-        $user = $this->checkUserAndRole($id);
+        $user = $this->authenticationService->getIdentity();
         if (!$user) {
             return $this->returnError(
                 $this->translate('Access forbidden.'), // @translate
@@ -127,7 +127,7 @@ class ApiController extends \Omeka\Controller\ApiController
 
     public function patch($id, $data)
     {
-        $user = $this->checkUserAndRole($id);
+        $user = $this->authenticationService->getIdentity();
         if (!$user) {
             return $this->returnError(
                 $this->translate('Access forbidden.'), // @translate
@@ -649,32 +649,8 @@ class ApiController extends \Omeka\Controller\ApiController
                 $storage->write($user);
             }
         } else {
-            $userPass = $this->passwordAuthenticationService->clearIdentity();
+            $this->passwordAuthenticationService->clearIdentity();
         }
-        return $user;
-    }
-
-    /**
-     * This api is only for guest user, so some checks are done.
-     *
-     * @param string $id
-     * @return \Omeka\Entity\User|null
-     */
-    protected function checkUserAndRole($id)
-    {
-        if ($id !== 'me') {
-            return null;
-        }
-
-        // Access rights are managed automatically: only logged guest users can
-        // update their account.
-        // The check of the role is only a security, rights are set in Module.
-        /** @var \Omeka\Entity\User $user */
-        $user = $this->authenticationService->getIdentity();
-        if (!$user || $user->getRole() !== \Guest\Permissions\Acl::ROLE_GUEST) {
-            return null;
-        }
-
         return $user;
     }
 
@@ -728,6 +704,7 @@ class ApiController extends \Omeka\Controller\ApiController
         }
 
         // For security, keep only the updatable data.
+        // TODO Check if acl forbids change of the role for guest and other public roles.
         $toPatch = array_intersect_key($data, [
             'o:name' => null,
             // 'o:email' => null,
@@ -755,6 +732,7 @@ class ApiController extends \Omeka\Controller\ApiController
 
     protected function changePassword(User $user, array $data)
     {
+        // TODO Remove limit to update password separately.
         if (count($data) > 2) {
             return $this->returnError(
                 $this->translate('You cannot update password and another data in the same time.'), // @translate
@@ -814,6 +792,7 @@ class ApiController extends \Omeka\Controller\ApiController
      */
     protected function changeEmail(User $user, array $data)
     {
+        // TODO Remove limit to update email separately.
         if (count($data) > 1) {
             return $this->returnError(
                 $this->translate('You cannot update email and another data in the same time.'), // @translate
