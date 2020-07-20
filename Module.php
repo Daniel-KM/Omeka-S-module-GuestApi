@@ -99,11 +99,23 @@ class Module extends AbstractModule
             [$this, 'filterEntityJsonLd'],
             -100
         );
+
+        $sharedEventManager->attach(
+            \Omeka\Api\Adapter\UserAdapter::class,
+            'api.create.post',
+            [$this, 'handleUserPost']
+        );
+        $sharedEventManager->attach(
+            \Omeka\Api\Adapter\UserAdapter::class,
+            'api.update.post',
+            [$this, 'handleUserPost']
+        );
     }
 
     /**
      * Remove some properties for the user.
      *
+     * @todo Remove this filter, or move it into module Group.
      * @param Event $event
      */
     public function filterEntityJsonLd(Event $event)
@@ -118,5 +130,37 @@ class Module extends AbstractModule
         $jsonLd = $event->getParam('jsonLd');
         unset($jsonLd['o-module-group:group']);
         $event->setParam('jsonLd', $jsonLd);
+    }
+
+    /**
+     * Handle hydration for user data: manage the password.
+     *
+     * @param Event $event
+     */
+    public function handleUserPost(Event $event)
+    {
+        /**
+         * @var \Omeka\Api\Request $request
+         * @var \Omeka\Api\Response $response
+         * @var \Omeka\Entity\User $user
+         */
+        $request = $event->getParam('request');
+        $userData = $request->getContent();
+        if (empty($userData['o:password'])) {
+            return;
+        }
+
+        $services = $this->getServiceLocator();
+        $entityManager = $services->get('Omeka\EntityManager');
+
+        $response = $event->getParam('response');
+        $user = $response->getContent();
+        $user->setPassword($userData['o:password']);
+        $entityManager->persist($user);
+
+        // The entity manager may be flushed or not.
+        if ($request->getOption('flushEntityManager', true)) {
+            $entityManager->flush();
+        }
     }
 }
