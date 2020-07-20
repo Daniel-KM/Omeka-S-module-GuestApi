@@ -28,6 +28,7 @@ class ConfigForm extends Form
                 ],
                 'attributes' => [
                     'id' => 'guestapi-open',
+                    'required' => true,
                 ],
             ])
             ->add([
@@ -122,6 +123,14 @@ class ConfigForm extends Form
                     'class' => 'chosen-select',
                     'data-placeholder' => 'Select roles…', // @translate
                 ],
+            ])
+        ;
+
+        $this->getInputFilter()
+            ->add([
+                'name' => 'guestapi_login_roles',
+                'allow_empty' => true,
+                'required' => false,
             ])
         ;
     }
