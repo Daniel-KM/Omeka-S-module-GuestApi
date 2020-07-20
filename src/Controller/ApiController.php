@@ -349,9 +349,8 @@ class ApiController extends \Omeka\Controller\ApiController
         $request = $this->getRequest();
         $data = json_decode($request->getContent(), true);
         // Post is required, but query is allowed for compatibility purpose.
-        if (empty($data)) {
-            $data = $this->params()->fromPost() ?: $this->params()->fromQuery();
-        }
+        // And in some cases, a part is in query...
+        $data += ($this->params()->fromPost() ?: []) + ($this->params()->fromQuery() ?: []);
 
         $site = null;
         $settings = $this->settings();
