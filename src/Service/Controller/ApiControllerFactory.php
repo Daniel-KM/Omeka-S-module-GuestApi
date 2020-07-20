@@ -25,6 +25,7 @@ class ApiControllerFactory implements FactoryInterface
             $services->get('Omeka\ApiManager'),
             $services->get('Omeka\AuthenticationService'),
             $passwordAuthService,
+            $services->get('Omeka\ApiAdapterManager')->get('users'),
             $services->get('Omeka\EntityManager'),
             $services->get('Config')
         );

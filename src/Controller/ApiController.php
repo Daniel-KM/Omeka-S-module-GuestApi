@@ -4,6 +4,7 @@ namespace GuestApi\Controller;
 use Doctrine\ORM\EntityManager;
 use Guest\Entity\GuestToken;
 use Guest\Stdlib\PsrMessage;
+use Omeka\Api\Adapter\UserAdapter;
 use Omeka\Api\Manager as ApiManager;
 use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Entity\User;
@@ -20,6 +21,10 @@ use Zend\Session\Container as SessionContainer;
  */
 class ApiController extends \Omeka\Controller\ApiController
 {
+    const STATUS_SUCCESS = 'success';
+    const STATUS_FAIL = 'fail';
+    const STATUS_ERROR = 'error';
+
     /**
      * @var AuthenticationService
      */
@@ -29,6 +34,11 @@ class ApiController extends \Omeka\Controller\ApiController
      * @var AuthenticationService
      */
     protected $passwordAuthenticationService;
+
+    /**
+     * @var UserAdapter
+     */
+    protected $userAdapter;
 
     /**
      * @var EntityManager
@@ -45,6 +55,7 @@ class ApiController extends \Omeka\Controller\ApiController
      * @param ApiManager $api
      * @param AuthenticationService $authenticationService
      * @param AuthenticationService $passwordAuthenticationService
+     * @param UserAdapter $userAdapter
      * @param EntityManager $entityManager
      * @param array $config
      */
@@ -53,6 +64,7 @@ class ApiController extends \Omeka\Controller\ApiController
         ApiManager $api,
         AuthenticationService $authenticationService,
         AuthenticationService $passwordAuthenticationService,
+        UserAdapter $userAdapter,
         EntityManager $entityManager,
         array $config
     ) {
@@ -60,6 +72,7 @@ class ApiController extends \Omeka\Controller\ApiController
         $this->api = $api;
         $this->authenticationService = $authenticationService;
         $this->passwordAuthenticationService = $passwordAuthenticationService;
+        $this->userAdapter = $userAdapter;
         $this->entityManager = $entityManager;
         $this->config = $config;
     }
@@ -199,7 +212,7 @@ class ApiController extends \Omeka\Controller\ApiController
             $data = $this->params()->fromPost() ?: $this->params()->fromQuery();
         }
 
-        if (!isset($data['email'])) {
+        if (empty($data['email'])) {
             return $this->returnError(
                 $this->translate('Email is required.') // @translate
             );
@@ -211,7 +224,7 @@ class ApiController extends \Omeka\Controller\ApiController
             );
         }
 
-        if (!isset($data['password'])) {
+        if (empty($data['password'])) {
             return $this->returnError(
                 $this->translate('Password is required.') // @translate
             );
@@ -221,7 +234,6 @@ class ApiController extends \Omeka\Controller\ApiController
         /** @var \Omeka\Entity\User $user */
         $user = $this->entityManager->getRepository(User::class)->findOneBy([
             'email' => $data['email'],
-            // Limited to role "guest" for security.
             'isActive' => true,
         ]);
 
@@ -303,7 +315,8 @@ class ApiController extends \Omeka\Controller\ApiController
 
         $message = $this->translate('Successfully logout.'); // @translate
         $result = [
-            'status' => Response::STATUS_CODE_200,
+            'status' => self::STATUS_SUCCESS,
+            'data' => null,
             'message' => $message,
         ];
         return new ApiJsonModel($result, $this->getViewOptions());
@@ -439,7 +452,10 @@ class ApiController extends \Omeka\Controller\ApiController
                 $message = $this->settings()->get('guestapi_message_confirm_register')
                     ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
                 $result = [
-                    'status' => Response::STATUS_CODE_200,
+                    'status' => self::STATUS_SUCCESS,
+                    'data' => [
+                        'user' => $this->userAdapter->getRepresentation($user),
+                    ],
                     'message' => $message,
                 ];
                 return new ApiJsonModel($result, $this->getViewOptions());
@@ -538,8 +554,12 @@ class ApiController extends \Omeka\Controller\ApiController
             $message = $this->settings()->get('guestapi_message_confirm_register')
                 ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
         }
+
         $result = [
-            'status' => Response::STATUS_CODE_200,
+            'status' => self::STATUS_SUCCESS,
+            'data' => [
+                'user' => $this->userAdapter->getRepresentation($user),
+            ],
             'message' => $message,
         ];
         return new ApiJsonModel($result, $this->getViewOptions());
@@ -718,9 +738,13 @@ class ApiController extends \Omeka\Controller\ApiController
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
+        $message = $this->translate('Password successfully changed'); // @translate
         $result = [
-            'status' => Response::STATUS_CODE_200,
-            'message' => $this->translate('Password successfully changed'), // @translate
+            'status' => self::STATUS_SUCCESS,
+            'data' => [
+                'user' => $this->userAdapter->getRepresentation($user),
+            ],
+            'message' => $message,
         ];
         return new ApiJsonModel($result, $this->getViewOptions());
     }
@@ -793,7 +817,10 @@ class ApiController extends \Omeka\Controller\ApiController
 
         $message = new Message($this->translate('Check your email "%s" to confirm the change.'), $email); // @translate
         $result = [
-            'status' => Response::STATUS_CODE_200,
+            'status' => self::STATUS_SUCCESS,
+            'data' => [
+                'user' => $this->userAdapter->getRepresentation($user),
+            ],
             'message' => $message,
         ];
         return new ApiJsonModel($result, $this->getViewOptions());
@@ -839,21 +866,45 @@ class ApiController extends \Omeka\Controller\ApiController
     protected function returnSessionToken(User $user)
     {
         $sessionToken = $this->prepareSessionToken($user);
-        $response = new \Omeka\Api\Response;
-        $response->setContent($sessionToken ?: []);
-        return new ApiJsonModel($response, $this->getViewOptions());
+        return new ApiJsonModel(
+            [
+                'status' => self::STATUS_SUCCESS,
+                'data' => [
+                    'session_token' => $sessionToken ?: null,
+                ],
+            ],
+            $this->getViewOptions()
+        );
     }
 
-    protected function returnError($message, $statusCode = Response::STATUS_CODE_400, array $errors = null)
-    {
+    protected function returnError(
+        $message,
+        $statusCode = Response::STATUS_CODE_400,
+        array $errors = null,
+        array $data = null,
+        $isFail = false
+    ) {
         $response = $this->getResponse();
         $response->setStatusCode($statusCode);
-        $result = [
-            'status' => $statusCode,
-            'message' => $message,
-        ];
-        if (is_array($errors)) {
-            $result['errors'] = $errors;
+        if ($isFail) {
+            $result = [
+                'status' => self::STATUS_FAIL,
+                'message' => $message,
+                'code' => $statusCode,
+                'data' => $data,
+            ];
+        } else {
+            $result = [
+                'status' => self::STATUS_ERROR,
+                'message' => $message,
+                'code' => $statusCode,
+            ];
+            if (is_array($errors)) {
+                $result['errors'] = $errors;
+            }
+            if (is_array($data)) {
+                $result['data'] = $data;
+            }
         }
         return new ApiJsonModel($result, $this->getViewOptions());
     }
