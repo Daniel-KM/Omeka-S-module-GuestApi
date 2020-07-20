@@ -312,26 +312,6 @@ class ApiController extends \Omeka\Controller\ApiController
             $data = $this->params()->fromPost();
         }
 
-        if (!isset($data['email'])) {
-            return $this->returnError(
-                $this->translate('Email is required.') // @translate
-            );
-        }
-
-        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            return $this->returnError(
-                $this->translate('Invalid email.') // @translate
-            );
-        }
-
-        if (empty($data['username'])) {
-            $data['username'] = $data['email'];
-        }
-
-        if (!isset($data['password'])) {
-            $data['password'] = null;
-        }
-
         $site = null;
         $settings = $this->settings();
         if ($settings->get('guestapi_register_site')) {
@@ -352,6 +332,26 @@ class ApiController extends \Omeka\Controller\ApiController
                     $this->translate('The site doesn’t exist.') // @translate
                 );
             }
+        }
+
+        if (!isset($data['email'])) {
+            return $this->returnError(
+                $this->translate('Email is required.') // @translate
+            );
+        }
+
+        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            return $this->returnError(
+                $this->translate('Invalid email.') // @translate
+            );
+        }
+
+        if (empty($data['username'])) {
+            $data['username'] = $data['email'];
+        }
+
+        if (!isset($data['password'])) {
+            $data['password'] = null;
         }
 
         $emailIsValid = $settings->get('guestapi_register_email_is_valid');

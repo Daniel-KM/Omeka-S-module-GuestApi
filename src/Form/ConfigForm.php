@@ -27,7 +27,7 @@ class ConfigForm extends Form
                     ],
                 ],
                 'attributes' => [
-                    'id' => 'guestapi-open',
+                    'id' => 'guestapi_open',
                     'required' => true,
                 ],
             ])
@@ -39,7 +39,7 @@ class ConfigForm extends Form
                     'info' => 'If checked, a site id or slug will be required when registering via api. Note: when this setting is set, all previous users must be added to a site.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'guestapi-register-site',
+                    'id' => 'guestapi_register_site',
                 ],
             ])
             ->add([
@@ -50,7 +50,7 @@ class ConfigForm extends Form
                     'info' => 'If checked, the user won’t have to validate his email, so he will be able to login directly.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'guestapi-register-email-is-valid',
+                    'id' => 'guestapi_register_email_is_valid',
                 ],
             ])
             ->add([
@@ -117,7 +117,7 @@ class ConfigForm extends Form
                     'value_options' => $this->getRoles(),
                 ],
                 'attributes' => [
-                    'id' => 'guestapi-login-roles',
+                    'id' => 'guestapi_login_roles',
                     'multiple' => true,
                     'required' => false,
                     'class' => 'chosen-select',
