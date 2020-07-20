@@ -32,12 +32,26 @@ To update the profile, use the path /api/users/me. For example to update:
 - name: /api/users/me?name=elisabeth_ii
 - password: /api/users/me?password=xxx&new_password=yyy
 
+In all other cases, you should use the standard api (`/api/users/#id`).
+
 Four specific paths are added:
 
 - /api/login
-  The user can login with `/api/login?email=elisabeth.ii@example.com&password=***`.
+  The user can login with a post to `/api/login` with data `{"email":"elisabeth.ii@example.com","password"=""***"}`.
   In return, a session token will be returned. All other actions can be done
   with them: `/api/users/me?key_identity=xxx&key_credential=yyy`.
+
+  If the option to create a local session cookie is set, the user will be
+  authenticated locally too, so it allows to login from a third party webservice,
+  for example if a user logs in inside a Drupal site, he can log in the Omeka
+  site simultaneously. This third party log in should be done via an ajax call
+  because the session cookie should be set in the browser, not in the server, so
+  you can’t simply call the endpoint from the third party server. In you third
+  party ajax, the header `Origin` should be filled in the request; this is
+  generally the case with common js libraries.
+
+  When a local session cookie is wanted, it is recommended to add a list of
+  sites that have the right to log in the config for security reasons.
 
 - /api/logout
 
@@ -50,18 +64,13 @@ Four specific paths are added:
   email. Other params are optional: `username`, `password`, and `site` (id or
   slug, that may be required via the config).
 
-In all other cases, use the standard api (/api/users/#id).
-
-**Important**: For security, only guest users can use these methods currently.
-
 **Warning**: The paths above may be changed in a future version to be more restful.
 
 
 TODO
 ----
 
-- Enable login via third parties.
-- Normalize all api routes for restapi (register, login, logout, session-token).
+- Normalize all api routes and json for rest api (register, login, logout, session-token).
 
 
 Warning
@@ -105,7 +114,7 @@ altered, and that no provisions are either added or removed herefrom.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2019 (see [Daniel-KM] on GitHub)
+* Copyright Daniel Berthereau, 2019-2020 (see [Daniel-KM] on GitHub)
 
 
 [Guest Api]: https://github.com/Daniel-KM/Omeka-S-module-GuestApi
