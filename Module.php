@@ -83,10 +83,9 @@ class Module extends AbstractModule
             );
         }
 
-        // This is an api, so all rest api actions are allowed, but only for
-        // guest for security.
+        // This is an api, so all rest api actions are allowed.
         $acl->allow(
-            [\Guest\Permissions\Acl::ROLE_GUEST],
+            $acl->getRoles(),
             [\GuestApi\Controller\ApiController::class]
         );
     }
