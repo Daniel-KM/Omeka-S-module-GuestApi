@@ -26,6 +26,11 @@ class ApiController extends \Omeka\Controller\ApiController
     protected $authenticationService;
 
     /**
+     * @var AuthenticationService
+     */
+    protected $passwordAuthenticationService;
+
+    /**
      * @var EntityManager
      */
     protected $entityManager;
@@ -39,6 +44,7 @@ class ApiController extends \Omeka\Controller\ApiController
      * @param Paginator $paginator
      * @param ApiManager $api
      * @param AuthenticationService $authenticationService
+     * @param AuthenticationService $passwordAuthenticationService
      * @param EntityManager $entityManager
      * @param array $config
      */
@@ -46,12 +52,14 @@ class ApiController extends \Omeka\Controller\ApiController
         Paginator $paginator,
         ApiManager $api,
         AuthenticationService $authenticationService,
+        AuthenticationService $passwordAuthenticationService,
         EntityManager $entityManager,
         array $config
     ) {
         $this->paginator = $paginator;
         $this->api = $api;
         $this->authenticationService = $authenticationService;
+        $this->passwordAuthenticationService = $passwordAuthenticationService;
         $this->entityManager = $entityManager;
         $this->config = $config;
     }
@@ -174,13 +182,22 @@ class ApiController extends \Omeka\Controller\ApiController
      */
     public function loginAction()
     {
-        if ($this->isUserLogged()) {
+        $user = $this->loggedUser();
+        if ($user) {
             return $this->returnError(
-                $this->translate('User cannot register: already logged.') // @translate
+                $this->translate('User cannot login: already logged.') // @translate
             );
         }
 
-        $data = $this->params()->fromQuery();
+        // Post may be empty because it is not the standard controller, so get
+        // the request directly.
+        /** @var \Zend\Http\PhpEnvironment\Request $request */
+        $request = $this->getRequest();
+        $data = json_decode($request->getContent(), true);
+        // Post is required, but query is allowed for compatibility purpose.
+        if (empty($data)) {
+            $data = $this->params()->fromPost() ?: $this->params()->fromQuery();
+        }
 
         if (!isset($data['email'])) {
             return $this->returnError(
@@ -200,7 +217,6 @@ class ApiController extends \Omeka\Controller\ApiController
             );
         }
 
-        // TODO Manage authentication via api for via third parties.
         // Process authentication via entity manager.
         /** @var \Omeka\Entity\User $user */
         $user = $this->entityManager->getRepository(User::class)->findOneBy([
@@ -230,6 +246,22 @@ class ApiController extends \Omeka\Controller\ApiController
             );
         }
 
+        // TODO Use chain storage.
+        if ($this->settings()->get('guestapi_login_session')) {
+            $this->passwordAuthenticationService->getAdapter()
+                ->setIdentity($data['email'])
+                ->setCredential($data['password']);
+            $result = $this->passwordAuthenticationService
+                ->authenticate();
+            if (!$result->isValid()) {
+                return $this->returnError(
+                    $this->translate('Wrong email or password.') // @translate
+                );
+            }
+        } else {
+            $this->passwordAuthenticationService->clearIdentity();
+        }
+
         $eventManager = $this->getEventManager();
         $eventManager->trigger('user.login', $user);
 
@@ -241,15 +273,20 @@ class ApiController extends \Omeka\Controller\ApiController
         /** @var \Omeka\Entity\User $user */
         $user = $this->authenticationService->getIdentity();
         if (!$user) {
-            return $this->returnError(
-                $this->translate('User not logged.') // @translate
-            );
+            $user = $this->passwordAuthenticationService->getIdentity();
+            if (!$user) {
+                return $this->returnError(
+                    $this->translate('User not logged.') // @translate
+                );
+            }
         }
 
         $this->removeSessionTokens($user);
 
-        $auth = $this->authenticationService;
-        $auth->clearIdentity();
+        // TODO Use authentication chain.
+        // In all cases, the logout is done on all authentication services.
+        $this->authenticationService->clearIdentity();
+        $this->passwordAuthenticationService->clearIdentity();
 
         $sessionManager = SessionContainer::getDefaultManager();
 
@@ -268,8 +305,7 @@ class ApiController extends \Omeka\Controller\ApiController
 
     public function sessionTokenAction()
     {
-        /** @var \Omeka\Entity\User $user */
-        $user = $this->authenticationService->getIdentity();
+        $user = $this->loggedUser();
         if (!$user) {
             return $this->returnError(
                 $this->translate('Access forbidden.'), // @translate
@@ -296,20 +332,25 @@ class ApiController extends \Omeka\Controller\ApiController
             );
         }
 
-        if ($this->isUserLogged()) {
+        if ($this->loggedUser()) {
             return $this->returnError(
                 $this->translate('User cannot register: already logged.') // @translate
             );
         }
 
-        // Here, it's not the true api, so there may be credentials that are not checked.
-        // TODO Use the true api to register.
+        // Unlike api post for creation, the registering creates the user and
+        // sends an email with a token.
 
         // TODO Use validator from the user form?
-        // TODO Remove this fix used to use post/query for /api/register and /guest/register.
-        $data = $this->params()->fromQuery();
+
+        // Post may be empty because it is not the standard controller, so get
+        // the request directly.
+        /** @var \Zend\Http\PhpEnvironment\Request $request */
+        $request = $this->getRequest();
+        $data = json_decode($request->getContent(), true);
+        // Post is required, but query is allowed for compatibility purpose.
         if (empty($data)) {
-            $data = $this->params()->fromPost();
+            $data = $this->params()->fromPost() ?: $this->params()->fromQuery();
         }
 
         $site = null;
@@ -509,6 +550,29 @@ class ApiController extends \Omeka\Controller\ApiController
     protected function isUserLogged()
     {
         return $this->authenticationService->hasIdentity();
+    }
+
+    /**
+     * Check if a user is logged and return it.
+     *
+     * This method simplifies derivative modules that use the same code.
+     *
+     * @return User|null
+     */
+    protected function loggedUser()
+    {
+        $user = $this->authenticationService->getIdentity();
+        if ($user && $this->settings()->get('guestapi_login_session')) {
+            $userPass = $this->passwordAuthenticationService->getIdentity();
+            if ($user !== $userPass) {
+                $storage = $this->passwordAuthenticationService->getStorage();
+                $storage->clear();
+                $storage->write($user);
+            }
+        } else {
+            $userPass = $this->passwordAuthenticationService->clearIdentity();
+        }
+        return $user;
     }
 
     /**

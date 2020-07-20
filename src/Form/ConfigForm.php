@@ -124,6 +124,17 @@ class ConfigForm extends Form
                     'data-placeholder' => 'Select roles…', // @translate
                 ],
             ])
+            ->add([
+                'name' => 'guestapi_login_session',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Create a local session cookie', // @translate
+                    'info' => 'If checked, a session cookie will be created, so the user will be able to login in Omeka from an other web app.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'guestapi_login_session',
+                ],
+            ])
         ;
 
         $this->getInputFilter()

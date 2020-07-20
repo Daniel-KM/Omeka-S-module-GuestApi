@@ -106,6 +106,7 @@ If you did not request to join {main_title} please disregard this email.', // @t
                 'contributor',
                 'guest',
             ],
+            'guestapi_login_session' => false,
         ],
     ],
 ];
