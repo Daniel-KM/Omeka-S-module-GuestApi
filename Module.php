@@ -61,13 +61,13 @@ class Module extends AbstractModule
             $acl->allow(
                 null,
                 [\GuestApi\Controller\ApiController::class],
-                ['login', 'session-token']
+                ['login', 'session-token', 'logout']
             );
         } else {
             $acl->allow(
                 null,
                 [\GuestApi\Controller\ApiController::class],
-                ['login', 'session-token', 'register']
+                ['login', 'session-token', 'logout', 'register']
             );
             $acl->allow(
                 null,
