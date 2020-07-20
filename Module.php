@@ -9,9 +9,11 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 }
 
 use Generic\AbstractModule;
+use GuestApi\Form\ConfigForm;
 use Zend\EventManager\Event;
 use Zend\EventManager\SharedEventManagerInterface;
 use Zend\Mvc\MvcEvent;
+use Zend\View\Renderer\PhpRenderer;
 
 class Module extends AbstractModule
 {
@@ -110,6 +112,28 @@ class Module extends AbstractModule
             'api.update.post',
             [$this, 'handleUserPost']
         );
+    }
+
+    public function getConfigForm(PhpRenderer $renderer)
+    {
+        $services = $this->getServiceLocator();
+
+        $settings = $services->get('Omeka\Settings');
+
+        $this->initDataToPopulate($settings, 'config');
+        $data = $this->prepareDataToPopulate($settings, 'config');
+        if (is_null($data)) {
+            return '';
+        }
+
+        $values = $settings->get('guestapi_cors', []);
+        $data['guestapi_cors'] = implode("\n", $values);
+
+        $form = $services->get('FormElementManager')->get(ConfigForm::class);
+        $form->init();
+        $form->setData($data);
+
+        return $renderer->formCollection($form);
     }
 
     /**

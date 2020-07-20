@@ -135,6 +135,19 @@ class ConfigForm extends Form
                     'id' => 'guestapi_login_session',
                 ],
             ])
+            ->add([
+                'name' => 'guestapi_cors',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Limit access to these domains (cors)', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'guestapi_cors',
+                    'rows' => 5,
+                    'placeholder' => 'http://example.org
+https://example.org',
+                ],
+            ])
         ;
 
         $this->getInputFilter()
@@ -142,6 +155,17 @@ class ConfigForm extends Form
                 'name' => 'guestapi_login_roles',
                 'allow_empty' => true,
                 'required' => false,
+            ])
+            ->add([
+                'name' => 'guestapi_cors',
+                'filters' => [
+                    [
+                        'name' => \Zend\Filter\Callback::class,
+                        'options' => [
+                            'callback' => [$this, 'stringToList'],
+                        ],
+                    ],
+                ],
             ])
         ;
     }
@@ -155,5 +179,18 @@ class ConfigForm extends Form
     protected function getRoles()
     {
         return $this->roles;
+    }
+
+    /**
+     * Get each line of a string separately.
+     *
+     * @param string $string
+     * @return array
+     */
+    public function stringToList($string)
+    {
+        return is_array($string)
+            ? $string
+            : array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $string))), 'strlen');
     }
 }

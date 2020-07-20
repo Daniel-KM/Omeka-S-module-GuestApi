@@ -107,6 +107,7 @@ If you did not request to join {main_title} please disregard this email.', // @t
                 'guest',
             ],
             'guestapi_login_session' => false,
+            'guestapi_cors' => [],
         ],
     ],
 ];

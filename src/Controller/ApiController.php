@@ -195,6 +195,11 @@ class ApiController extends \Omeka\Controller\ApiController
      */
     public function loginAction()
     {
+        $returnError = $this->checkCors();
+        if ($returnError) {
+            return $returnError;
+        }
+
         $user = $this->loggedUser();
         if ($user) {
             return $this->returnError(
@@ -260,6 +265,7 @@ class ApiController extends \Omeka\Controller\ApiController
 
         // TODO Use chain storage.
         if ($this->settings()->get('guestapi_login_session')) {
+            // Check password.
             $this->passwordAuthenticationService->getAdapter()
                 ->setIdentity($data['email'])
                 ->setCredential($data['password']);
@@ -288,6 +294,11 @@ class ApiController extends \Omeka\Controller\ApiController
 
     public function logoutAction()
     {
+        $returnError = $this->checkCors();
+        if ($returnError) {
+            return $returnError;
+        }
+
         /** @var \Omeka\Entity\User $user */
         $user = $this->authenticationService->getIdentity();
         if (!$user) {
@@ -324,6 +335,11 @@ class ApiController extends \Omeka\Controller\ApiController
 
     public function sessionTokenAction()
     {
+        $returnError = $this->checkCors();
+        if ($returnError) {
+            return $returnError;
+        }
+
         $user = $this->loggedUser();
         if (!$user) {
             return $this->returnError(
@@ -342,6 +358,11 @@ class ApiController extends \Omeka\Controller\ApiController
      */
     public function registerAction()
     {
+        $returnError = $this->checkCors();
+        if ($returnError) {
+            return $returnError;
+        }
+
         $settings = $this->settings();
         $apiOpenRegistration = $settings->get('guestapi_open');
         if ($apiOpenRegistration === 'closed') {
@@ -563,6 +584,39 @@ class ApiController extends \Omeka\Controller\ApiController
             'message' => $message,
         ];
         return new ApiJsonModel($result, $this->getViewOptions());
+    }
+
+    /**
+     * Check cors and prepare the response.
+     *
+     * @return \Omeka\View\Model\ApiJsonModel|null
+     */
+    protected function checkCors()
+    {
+        // Check cors if any.
+        $cors = $this->settings()->get('guestapi_cors') ?: ['*'];
+        if (in_array('*', $cors)) {
+            $origin = '*';
+        } else {
+            /** @var \Zend\Http\Header\Origin|false $origin */
+            $origin = $this->getRequest()->getHeader('Origin');
+            if ($origin) {
+                $origin = $origin->getFieldValue();
+            }
+            if (!$origin
+                || (!is_array($origin) && !in_array($origin, $cors))
+                || (is_array($origin) && !array_intersect($origin, $cors))
+            ) {
+                return $this->returnError(
+                    $this->translate('Access forbidden.'), // @translate
+                    Response::STATUS_CODE_403
+                );
+            }
+        }
+
+        // Add cors origin.
+        $this->getResponse()->getHeaders()->addHeaderLine('Access-Control-Allow-Origin', $origin);
+        return null;
     }
 
     /**
