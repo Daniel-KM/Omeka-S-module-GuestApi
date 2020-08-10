@@ -86,7 +86,11 @@ class ApiController extends \Omeka\Controller\ApiController
                 Response::STATUS_CODE_403
             );
         }
-        return parent::get($user->getId());
+        $userRepr = $this->userAdapter->getRepresentation($user);
+        $response = new \Omeka\Api\Response;
+        $response->setTotalResults(1);
+        $response->setContent($userRepr);
+        return new ApiJsonModel($response, $this->getViewOptions());
     }
 
     public function getList()
