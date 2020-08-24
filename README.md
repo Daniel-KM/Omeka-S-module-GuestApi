@@ -1,5 +1,9 @@
 Guest Api (module for Omeka S)
-===================================
+==============================
+
+
+> __New versions of this module and support for Omeka S version 3.0 and above
+> are available on [GitLab], which seems to respect users and privacy better.__
 
 [Guest Api] is a module for [Omeka S] that allows to manage the actions of the
 module [Guest] by an api, in particular to register and to update its own
@@ -114,16 +118,17 @@ altered, and that no provisions are either added or removed herefrom.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2019-2020 (see [Daniel-KM] on GitHub)
+* Copyright Daniel Berthereau, 2019-2020 (see [Daniel-KM] on GitLab)
 
 
-[Guest Api]: https://github.com/Daniel-KM/Omeka-S-module-GuestApi
-[Guest]: https://github.com/Daniel-KM/Omeka-S-module-Guest
+[Guest Api]: https://gitlab.com/Daniel-KM/Omeka-S-module-GuestApi
+[Guest]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest
 [Omeka S]: https://www.omeka.org/s
+[GitLab]: https://gitlab.com/Daniel-KM/Omeka-S-module-GuestApi
 [Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
-[module issues]: https://github.com/Daniel-KM/Omeka-S-module-GuestApi/issues
+[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-GuestApi/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
 [OSI]: http://opensource.org
-[Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"
+[Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"
