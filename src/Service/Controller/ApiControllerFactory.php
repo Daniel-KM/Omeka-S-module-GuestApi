@@ -3,11 +3,11 @@ namespace GuestApi\Service\Controller;
 
 use GuestApi\Controller\ApiController;
 use Interop\Container\ContainerInterface;
+use Laminas\Authentication\AuthenticationService;
+use Laminas\Authentication\Storage\Session;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 use Omeka\Authentication\Adapter\PasswordAdapter;
 use Omeka\Authentication\Storage\DoctrineWrapper;
-use Zend\Authentication\AuthenticationService;
-use Zend\Authentication\Storage\Session;
-use Zend\ServiceManager\Factory\FactoryInterface;
 
 class ApiControllerFactory implements FactoryInterface
 {

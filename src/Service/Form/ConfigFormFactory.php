@@ -1,9 +1,9 @@
 <?php
 namespace GuestApi\Service\Form;
 
-use Interop\Container\ContainerInterface;
 use GuestApi\Form\ConfigForm;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Interop\Container\ContainerInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class ConfigFormFactory implements FactoryInterface
 {

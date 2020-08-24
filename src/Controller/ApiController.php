@@ -4,17 +4,17 @@ namespace GuestApi\Controller;
 use Doctrine\ORM\EntityManager;
 use Guest\Entity\GuestToken;
 use Guest\Stdlib\PsrMessage;
+use Laminas\Authentication\AuthenticationService;
+use Laminas\Http\Response;
+use Laminas\Session\Container as SessionContainer;
 use Omeka\Api\Adapter\UserAdapter;
 use Omeka\Api\Manager as ApiManager;
 use Omeka\Api\Representation\SiteRepresentation;
-use Omeka\Entity\User;
 use Omeka\Entity\SitePermission;
+use Omeka\Entity\User;
 use Omeka\Stdlib\Message;
 use Omeka\Stdlib\Paginator;
 use Omeka\View\Model\ApiJsonModel;
-use Zend\Authentication\AuthenticationService;
-use Zend\Http\Response;
-use Zend\Session\Container as SessionContainer;
 
 /**
  * Allow to manage "me" via api.
@@ -213,7 +213,7 @@ class ApiController extends \Omeka\Controller\ApiController
 
         // Post may be empty because it is not the standard controller, so get
         // the request directly.
-        /** @var \Zend\Http\PhpEnvironment\Request $request */
+        /** @var \Laminas\Http\PhpEnvironment\Request $request */
         $request = $this->getRequest();
         $data = json_decode($request->getContent(), true);
         // Post is required, but query is allowed for compatibility purpose.
@@ -358,7 +358,7 @@ class ApiController extends \Omeka\Controller\ApiController
      * @see \Guest\Controller\Site\GuestController::registerAction()
      *
      * @todo Replace registerAction() by create()?
-     * @return \Zend\Http\Response|\Zend\View\Model\ViewModel
+     * @return \Laminas\Http\Response|\Laminas\View\Model\ViewModel
      */
     public function registerAction()
     {
@@ -389,7 +389,7 @@ class ApiController extends \Omeka\Controller\ApiController
 
         // Post may be empty because it is not the standard controller, so get
         // the request directly.
-        /** @var \Zend\Http\PhpEnvironment\Request $request */
+        /** @var \Laminas\Http\PhpEnvironment\Request $request */
         $request = $this->getRequest();
         $data = json_decode($request->getContent(), true);
         // Post is required, but query is allowed for compatibility purpose.
@@ -602,7 +602,7 @@ class ApiController extends \Omeka\Controller\ApiController
         if (in_array('*', $cors)) {
             $origin = '*';
         } else {
-            /** @var \Zend\Http\Header\Origin|false $origin */
+            /** @var \Laminas\Http\Header\Origin|false $origin */
             $origin = $this->getRequest()->getHeader('Origin');
             if ($origin) {
                 $origin = $origin->getFieldValue();

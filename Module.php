@@ -10,10 +10,10 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 
 use Generic\AbstractModule;
 use GuestApi\Form\ConfigForm;
-use Zend\EventManager\Event;
-use Zend\EventManager\SharedEventManagerInterface;
-use Zend\Mvc\MvcEvent;
-use Zend\View\Renderer\PhpRenderer;
+use Laminas\EventManager\Event;
+use Laminas\EventManager\SharedEventManagerInterface;
+use Laminas\Mvc\MvcEvent;
+use Laminas\View\Renderer\PhpRenderer;
 
 class Module extends AbstractModule
 {
@@ -145,7 +145,7 @@ class Module extends AbstractModule
     public function filterEntityJsonLd(Event $event)
     {
         $services = $this->getServiceLocator();
-        /** @var \Zend\Authentication\AuthenticationService $authentication */
+        /** @var \Laminas\Authentication\AuthenticationService $authentication */
         $authentication = $services->get('Omeka\AuthenticationService');
         $user = $services->get('Omeka\AuthenticationService')->getIdentity();
         if ($user && $user->getRole() !== \Guest\Permissions\Acl::ROLE_GUEST) {

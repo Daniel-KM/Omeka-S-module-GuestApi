@@ -1,8 +1,8 @@
 <?php
 namespace GuestApi\Form;
 
-use Zend\Form\Element;
-use Zend\Form\Form;
+use Laminas\Form\Element;
+use Laminas\Form\Form;
 
 class ConfigForm extends Form
 {
@@ -109,7 +109,7 @@ class ConfigForm extends Form
             ])
             ->add([
                 'name' => 'guestapi_login_roles',
-                'type' => \Zend\Form\Element\Select::class,
+                'type' => \Laminas\Form\Element\Select::class,
                 'options' => [
                     'label' => 'Roles that can login', // @translate
                     'info' => 'To allow full access via api increases risks of intrusion.', // @translate
@@ -160,7 +160,7 @@ https://example.org',
                 'name' => 'guestapi_cors',
                 'filters' => [
                     [
-                        'name' => \Zend\Filter\Callback::class,
+                        'name' => \Laminas\Filter\Callback::class,
                         'options' => [
                             'callback' => [$this, 'stringToList'],
                         ],

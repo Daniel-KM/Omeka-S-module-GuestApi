@@ -22,7 +22,7 @@ return [
             'api' => [
                 'child_routes' => [
                     'guest' => [
-                        'type' => \Zend\Router\Http\Literal::class,
+                        'type' => \Laminas\Router\Http\Literal::class,
                         'options' => [
                             'route' => '/users/me',
                             'defaults' => [
@@ -33,7 +33,7 @@ return [
                         ],
                     ],
                     'guest-login' => [
-                        'type' => \Zend\Router\Http\Literal::class,
+                        'type' => \Laminas\Router\Http\Literal::class,
                         'options' => [
                             'route' => '/login',
                             'defaults' => [
@@ -43,7 +43,7 @@ return [
                         ],
                     ],
                     'guest-logout' => [
-                        'type' => \Zend\Router\Http\Literal::class,
+                        'type' => \Laminas\Router\Http\Literal::class,
                         'options' => [
                             'route' => '/logout',
                             'defaults' => [
@@ -53,7 +53,7 @@ return [
                         ],
                     ],
                     'guest-session-token' => [
-                        'type' => \Zend\Router\Http\Literal::class,
+                        'type' => \Laminas\Router\Http\Literal::class,
                         'options' => [
                             'route' => '/session-token',
                             'defaults' => [
@@ -63,7 +63,7 @@ return [
                         ],
                     ],
                     'guest-register' => [
-                        'type' => \Zend\Router\Http\Literal::class,
+                        'type' => \Laminas\Router\Http\Literal::class,
                         'options' => [
                             'route' => '/register',
                             'defaults' => [
