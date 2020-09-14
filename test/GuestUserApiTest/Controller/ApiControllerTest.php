@@ -41,8 +41,8 @@ class ApiControllerTest extends GuestControllerTestCase
 
         $mailer = $this->getServiceLocator()->get('Omeka\Mailer');
         $body = $mailer->getMessage()->getBody();
-        $link = '<a href=\''.$siteRepresentation->siteUrl().'/guest/confirm?token='.$this->getUserToken('test3@test.fr')->getToken().'\'>';
-        $this->assertContains('You have registered for an account on '.$link.'Test</a>. Please confirm your registration by following '.$link.'this link</a>.  If you did not request to join Test please disregard this email.', $body);
+        $link = '<a href=\'' . $siteRepresentation->siteUrl() . '/guest/confirm?token=' . $this->getUserToken('test3@test.fr')->getToken() . '\'>';
+        $this->assertContains('You have registered for an account on ' . $link . 'Test</a>. Please confirm your registration by following ' . $link . 'this link</a>.  If you did not request to join Test please disregard this email.', $body);
     }
 
     /**
@@ -52,7 +52,7 @@ class ApiControllerTest extends GuestControllerTestCase
     {
         $user = $this->createGuest();
         $userToken = $this->getUserToken($user->email());
-        $this->dispatch('/s/test/guest/confirm?token='.$userToken->getToken());
+        $this->dispatch('/s/test/guest/confirm?token=' . $userToken->getToken());
         $this->assertTrue($userToken->isConfirmed());
         $this->assertRedirect('guest/login');
         $this->assertXPathQueryContentContains('//li[@class="success"]', 'Thanks for joining Test! You can now log using the password you chose.');
