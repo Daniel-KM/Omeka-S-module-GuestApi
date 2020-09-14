@@ -619,7 +619,14 @@ class ApiController extends \Omeka\Controller\ApiController
         }
 
         // Add cors origin.
-        $this->getResponse()->getHeaders()->addHeaderLine('Access-Control-Allow-Origin', $origin);
+        $this->getResponse()->getHeaders()
+            ->addHeaderLine('Access-Control-Allow-Origin', $origin)
+            // @link https://stackoverflow.com/questions/58270663/samesite-warning-chrome-77
+            ->addHeaderLine('Set-Cookie',
+                session_name() . '='
+                . json_decode(json_encode($_SESSION), true)['__ZF']['_VALID']['Zend\Session\Validator\Id']
+                . '; Path=/; HttpOnly; Secure; SameSite=None')
+        ;
         return null;
     }
 
