@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace GuestApi\Service\Form;
 
 use GuestApi\Form\ConfigForm;

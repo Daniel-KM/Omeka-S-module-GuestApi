@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace GuestApi;
 
@@ -26,7 +26,7 @@ class Module extends AbstractModule
      * @see \Omeka\Module\AbstractModule::onBootstrap()
      * @todo Find the right way to load Guest before other modules in order to add role.
      */
-    public function onBootstrap(MvcEvent $event)
+    public function onBootstrap(MvcEvent $event): void
     {
         parent::onBootstrap($event);
 
@@ -40,7 +40,7 @@ class Module extends AbstractModule
         $this->addAclRoleAndRules();
     }
 
-    protected function postInstall()
+    protected function postInstall(): void
     {
         // Upgrade from GuestUserApi, if old settings are present.
         // Old settings are renamed from "guestuserapi_*" to "guestuser_*".
@@ -51,7 +51,7 @@ class Module extends AbstractModule
     /**
      * Add ACL role and rules for this module.
      */
-    protected function addAclRoleAndRules()
+    protected function addAclRoleAndRules(): void
     {
         /** @var \Omeka\Permissions\Acl $acl */
         $services = $this->getServiceLocator();
@@ -92,7 +92,7 @@ class Module extends AbstractModule
         );
     }
 
-    public function attachListeners(SharedEventManagerInterface $sharedEventManager)
+    public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
     {
         // This filter is used after other ones.
         $sharedEventManager->attach(
@@ -142,7 +142,7 @@ class Module extends AbstractModule
      * @todo Remove this filter, or move it into module Group.
      * @param Event $event
      */
-    public function filterEntityJsonLd(Event $event)
+    public function filterEntityJsonLd(Event $event): void
     {
         $services = $this->getServiceLocator();
         /** @var \Laminas\Authentication\AuthenticationService $authentication */
@@ -161,7 +161,7 @@ class Module extends AbstractModule
      *
      * @param Event $event
      */
-    public function handleUserPost(Event $event)
+    public function handleUserPost(Event $event): void
     {
         /**
          * @var \Omeka\Api\Request $request

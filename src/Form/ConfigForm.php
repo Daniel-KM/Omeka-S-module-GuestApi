@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace GuestApi\Form;
 
 use Laminas\Form\Element;
@@ -11,7 +11,7 @@ class ConfigForm extends Form
      */
     protected $roles;
 
-    public function init()
+    public function init(): void
     {
         $this
             ->add([

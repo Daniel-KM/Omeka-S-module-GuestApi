@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace GuestApi\Controller;
 
 use Doctrine\ORM\EntityManager;
@@ -521,7 +521,7 @@ class ApiController extends \Omeka\Controller\ApiController
             $siteEntity->getSitePermissions()->add($sitePermission);
             $this->entityManager->persist($siteEntity);
             $this->entityManager->flush();
-            // $this->api->update('sites', $site->id(), [
+        // $this->api->update('sites', $site->id(), [
             //     'o:site_permission' => [
             //         'o:user' => ['o:id' => $user->getId()],
             //         'o:role' => 'viewer',
@@ -895,7 +895,7 @@ class ApiController extends \Omeka\Controller\ApiController
         ];
     }
 
-    protected function removeSessionTokens(User $user)
+    protected function removeSessionTokens(User $user): void
     {
         // Remove all existing session tokens.
         $keys = $user->getKeys();
