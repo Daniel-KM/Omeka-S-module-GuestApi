@@ -98,7 +98,7 @@ See online issues on the [module issues] page.
 License
 -------
 
-This plugin is published under the [CeCILL v2.1] licence, compatible with
+This plugin is published under the [CeCILL v2.1] license, compatible with
 [GNU/GPL] and approved by [FSF] and [OSI].
 
 In consideration of access to the source code and the rights to copy, modify and
@@ -129,7 +129,7 @@ Copyright
 [Omeka S]: https://www.omeka.org/s
 [GitLab]: https://gitlab.com/Daniel-KM/Omeka-S-module-GuestApi
 [Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules
-[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-GuestApi/issues
+[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-GuestApi/-/issues
 [CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [FSF]: https://www.fsf.org
