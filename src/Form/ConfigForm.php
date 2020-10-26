@@ -1,8 +1,11 @@
 <?php declare(strict_types=1);
+
 namespace GuestApi\Form;
 
+use GuestApi\Form\Element\OptionalSelect;
 use Laminas\Form\Element;
 use Laminas\Form\Form;
+use Omeka\Form\Element\ArrayTextarea;
 
 class ConfigForm extends Form
 {
@@ -109,11 +112,12 @@ class ConfigForm extends Form
             ])
             ->add([
                 'name' => 'guestapi_login_roles',
-                'type' => \Laminas\Form\Element\Select::class,
+                'type' => OptionalSelect::class,
                 'options' => [
                     'label' => 'Roles that can login', // @translate
                     'info' => 'To allow full access via api increases risks of intrusion.', // @translate
                     'empty_option' => '',
+                    'use_hidden_element' => true,
                     'value_options' => $this->getRoles(),
                 ],
                 'attributes' => [
@@ -137,7 +141,7 @@ class ConfigForm extends Form
             ])
             ->add([
                 'name' => 'guestapi_cors',
-                'type' => Element\Textarea::class,
+                'type' => ArrayTextarea::class,
                 'options' => [
                     'label' => 'Limit access to these domains (cors)', // @translate
                 ],
@@ -146,25 +150,6 @@ class ConfigForm extends Form
                     'rows' => 5,
                     'placeholder' => 'http://example.org
 https://example.org',
-                ],
-            ])
-        ;
-
-        $this->getInputFilter()
-            ->add([
-                'name' => 'guestapi_login_roles',
-                'allow_empty' => true,
-                'required' => false,
-            ])
-            ->add([
-                'name' => 'guestapi_cors',
-                'filters' => [
-                    [
-                        'name' => \Laminas\Filter\Callback::class,
-                        'options' => [
-                            'callback' => [$this, 'stringToList'],
-                        ],
-                    ],
                 ],
             ])
         ;
@@ -179,18 +164,5 @@ https://example.org',
     protected function getRoles()
     {
         return $this->roles;
-    }
-
-    /**
-     * Get each line of a string separately.
-     *
-     * @param string $string
-     * @return array
-     */
-    public function stringToList($string)
-    {
-        return is_array($string)
-            ? $string
-            : array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $string))), 'strlen');
     }
 }

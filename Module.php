@@ -114,28 +114,6 @@ class Module extends AbstractModule
         );
     }
 
-    public function getConfigForm(PhpRenderer $renderer)
-    {
-        $services = $this->getServiceLocator();
-
-        $settings = $services->get('Omeka\Settings');
-
-        $this->initDataToPopulate($settings, 'config');
-        $data = $this->prepareDataToPopulate($settings, 'config');
-        if (is_null($data)) {
-            return '';
-        }
-
-        $values = $settings->get('guestapi_cors', []);
-        $data['guestapi_cors'] = implode("\n", $values);
-
-        $form = $services->get('FormElementManager')->get(ConfigForm::class);
-        $form->init();
-        $form->setData($data);
-
-        return $renderer->formCollection($form);
-    }
-
     /**
      * Remove some properties for the user.
      *
