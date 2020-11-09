@@ -59,8 +59,8 @@ Four specific paths are added:
 - /api/logout
 
 - /api/session-token
-  A session token can be created for api access. It is reset each login or
-  logout. The api keys has no limited life in Omeka.
+  A session token can be created for api access. It is reset each time the user
+  login or logout. The api keys have no limited life in Omeka.
 
 - /api/register
   A visitor can register too, if allowed in the config. Register requires an
