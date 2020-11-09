@@ -10,13 +10,10 @@ return [
     ],
     'form_elements' => [
         'invokables' => [
-            'OptionalSelect' => Form\Element\OptionalSelect::class,
+            Form\Element\OptionalSelect::class => Form\Element\OptionalSelect::class,
         ],
         'factories' => [
             Form\ConfigForm::class => Service\Form\ConfigFormFactory::class,
-        ],
-        'aliases' => [
-            Form\Element\OptionalSelect::class => 'OptionalSelect',
         ],
     ],
     'controllers' => [
