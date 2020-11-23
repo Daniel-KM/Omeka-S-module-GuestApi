@@ -391,7 +391,7 @@ class ApiController extends \Omeka\Controller\ApiController
         // the request directly.
         /** @var \Laminas\Http\PhpEnvironment\Request $request */
         $request = $this->getRequest();
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true) ?: [];
         // Post is required, but query is allowed for compatibility purpose.
         // And in some cases, a part is in query...
         $data += ($this->params()->fromPost() ?: []) + ($this->params()->fromQuery() ?: []);
