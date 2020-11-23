@@ -982,12 +982,17 @@ class ApiController extends \Omeka\Controller\ApiController
         $data += $default;
 
         if (isset($data['token'])) {
+            $actions = [
+                'register-email-api' => 'confirm-email',
+                'register-email-api-text' => 'confirm-email',
+            ];
+            $action = $actions[$template] ?? $template;
             $data['token'] = $data['token']->getToken();
             $urlOptions = ['force_canonical' => true];
             $urlOptions['query']['token'] = $data['token'];
             $data['token_url'] = $this->url()->fromRoute(
                 'site/guest/anonymous',
-                ['site-slug' => $site->slug(),  'action' => $template],
+                ['site-slug' => $site->slug(),  'action' => $action],
                 $urlOptions
             );
         }
