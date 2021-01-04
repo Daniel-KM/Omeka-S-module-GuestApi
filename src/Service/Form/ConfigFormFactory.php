@@ -15,7 +15,7 @@ class ConfigFormFactory implements FactoryInterface
         $roleLabels = $acl->getRoleLabels();
         $roles = [];
         foreach ($rolesList as $role) {
-            $roles[$role] = isset($roleLabels[$role]) ? $roleLabels[$role] : $role;
+            $roles[$role] = $roleLabels[$role] ?? $role;
         }
 
         $form = new ConfigForm(null, $options);
