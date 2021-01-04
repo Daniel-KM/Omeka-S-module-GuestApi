@@ -6,11 +6,10 @@ Guest Api (module for Omeka S)
 > than the previous repository.__
 
 [Guest Api] is a module for [Omeka S] that allows to manage the actions of the
-module [Guest] by an api, in particular to register and to update its own
-profile.
-
-The guest api does not replace the standard api (/api/users/#id), but add some
-checks and features.
+guest or any other user, provided by the module [Guest], by the module [Guest Role]
+or any other module, by the api. This api allows in particular to register, to
+update the password, or to update its own profile and settings. So it does not
+replace the standard api (/api/users/#id), but adds some checks and features.
 
 
 Installation
@@ -31,7 +30,12 @@ First, specify the roles that can login by api in the config form of the module.
 Note that to allow any roles to login, in particular global admins, increase the
 access points to check for security.
 
-To update the profile, use the path /api/users/me. For example to update:
+The path `/api/users/me` is used for the user that is currently authenticated
+through the credentials arguments. This is a shortcut to `/api/users/{id}` for
+common actions, in particular to get the current user own data.
+
+Other http methods are available to update the profile with the same path. For
+example to update (http method `PATCH`/`POST`):
 - email: /api/users/me?email=elisabeth.ii@example.com
 - name: /api/users/me?name=elisabeth_ii
 - password: /api/users/me?password=xxx&new_password=yyy
@@ -41,14 +45,14 @@ In all other cases, you should use the standard api (`/api/users/#id`).
 Four specific paths are added:
 
 - /api/login
-  The user can login with a post to `/api/login` with data `{"email":"elisabeth.ii@example.com","password"=""***"}`.
+  The user can log in with a post to `/api/login` with data `{"email":"elisabeth.ii@example.com","password"=""***"}`.
   In return, a session token will be returned. All other actions can be done
   with them: `/api/users/me?key_identity=xxx&key_credential=yyy`.
 
   If the option to create a local session cookie is set, the user will be
-  authenticated locally too, so it allows to login from a third party webservice,
+  authenticated locally too, so it allows to log in from a third party webservice,
   for example if a user logs in inside a Drupal site, he can log in the Omeka
-  site simultaneously. This third party log in should be done via an ajax call
+  site simultaneously. This third party login should be done via an ajax call
   because the session cookie should be set in the browser, not in the server, so
   you can’t simply call the endpoint from the third party server. In you third
   party ajax, the header `Origin` should be filled in the request; this is
@@ -74,7 +78,7 @@ Four specific paths are added:
 TODO
 ----
 
-- Normalize all api routes and json for rest api (register, login, logout, session-token).
+- [ ] Normalize all api routes and json for rest api (register, login, logout, session-token).
 
 
 Warning
@@ -118,11 +122,12 @@ altered, and that no provisions are either added or removed herefrom.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2019-2020 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2019-2021 (see [Daniel-KM] on GitLab)
 
 
 [Guest Api]: https://gitlab.com/Daniel-KM/Omeka-S-module-GuestApi
 [Guest]: https://gitlab.com/Daniel-KM/Omeka-S-module-Guest
+[Guest Role]: https://github.com/biblibre/omeka-s-module-GuestRole
 [Omeka S]: https://www.omeka.org/s
 [GitLab]: https://gitlab.com/Daniel-KM/Omeka-S-module-GuestApi
 [Installing a module]: http://dev.omeka.org/docs/s/user-manual/modules/#installing-modules

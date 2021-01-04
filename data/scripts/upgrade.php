@@ -24,3 +24,15 @@ if (version_compare($oldVersion, '3.1.1', '<')) {
     $settings->set('guestapi_open', $settings->get('guestapi_register') ? 'open' : 'closed');
     $settings->delete('guestapi_register');
 }
+
+if (version_compare($oldVersion, '3.3.3.3.3', '<')) {
+    $module = $services->get('Omeka\ModuleManager')->getModule('Generic');
+    if ($module && version_compare($module->getIni('version'), '3.3.27', '<')) {
+        $translator = $services->get('MvcTranslator');
+        $message = new \Omeka\Stdlib\Message(
+            $translator->translate('This module requires the module "%s", version %s or above.'), // @translate
+            'Generic', '3.3.27'
+        );
+        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+    }
+}
