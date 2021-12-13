@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace GuestApi\Controller;
 
 use Doctrine\ORM\EntityManager;
@@ -438,7 +439,7 @@ class ApiController extends \Omeka\Controller\ApiController
             $data['password'] = null;
         }
 
-        $emailIsValid = $settings->get('guestapi_register_email_is_valid');
+        $emailIsAlwaysValid = $settings->get('guestapi_register_email_is_valid');
 
         $userInfo = [];
         $userInfo['o:email'] = $data['email'];
@@ -447,53 +448,115 @@ class ApiController extends \Omeka\Controller\ApiController
         $userInfo['o:role'] = \Guest\Permissions\Acl::ROLE_GUEST;
         $userInfo['o:is_active'] = false;
 
-        $response = $this->api->create('users', $userInfo);
-        if (!$response) {
-            /** @var \Omeka\Entity\User $user */
-            $user = $this->entityManager->getRepository(User::class)->findOneBy([
-                'email' => $userInfo['o:email'],
-            ]);
-            if ($user) {
-                /** @var \Guest\Entity\GuestToken $guestToken */
-                $guestToken = $this->entityManager->getRepository(GuestToken::class)
-                    ->findOneBy(['email' => $userInfo['o:email']], ['id' => 'DESC']);
-                if (empty($guestToken) || $guestToken->isConfirmed()) {
-                    return $this->returnError(
-                        $this->translate('Already registered.') // @translate
-                    );
-                }
-
-                // This is a second registration, but the token is not set, but
-                // the option may have been updated.
-                if ($guestToken && $emailIsValid) {
-                    $guestToken->setConfirmed(true);
-                    $this->entityManager->persist($guestToken);
-                    $this->entityManager->flush();
-                    return $this->returnError(
-                        $this->translate('Already registered.') // @translate
-                    );
-                }
-
-                $message = $this->settings()->get('guestapi_message_confirm_register')
-                    ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
-                $result = [
-                    'status' => self::STATUS_SUCCESS,
-                    'data' => [
-                        'user' => $this->userAdapter->getRepresentation($user),
-                    ],
-                    'message' => $message,
-                ];
-                return new ApiJsonModel($result, $this->getViewOptions());
+        // Before creation, check the email too to manage confirmation, rights
+        // and module UserNames.
+        $user = $this->entityManager->getRepository(User::class)->findOneBy([
+            'email' => $userInfo['o:email'],
+        ]);
+        if ($user) {
+            $guestToken = $this->entityManager->getRepository(GuestToken::class)
+                ->findOneBy(['email' => $userInfo['o:email']], ['id' => 'DESC']);
+            if (empty($guestToken) || $guestToken->isConfirmed()) {
+                return $this->returnError(
+                    $this->translate('Already registered.') // @translate
+                );
             }
 
+            // This is a second registration, but the token is not set, but
+            // the option may have been updated.
+            if ($guestToken && $emailIsAlwaysValid) {
+                $guestToken->setConfirmed(true);
+                $this->entityManager->persist($guestToken);
+                $this->entityManager->flush();
+                return $this->returnError(
+                    $this->translate('Already registered.') // @translate
+                );
+            }
+
+            // TODO Check if the token is expired to ask a new one.
             return $this->returnError(
-                $this->translate('Unknown error.'), // @translate
-                Response::STATUS_CODE_500
+                $this->translate('Check your email to confirm your registration.') // @translate
             );
         }
 
+        // Because creation of a username (module UserNames) by an anonymous
+        // visitor is not possible, a check is done for duplicates first to
+        // avoid issue later.
+        if ($this->hasModuleUserNames()) {
+            // The username is a required data and it must be valid.
+            // Get the adapter through the services.
+            $userNameAdapter = $this->api()->read('vocabularies', 1)->getContent()->getServiceLocator()
+                ->get('Omeka\ApiAdapterManager')->get('usernames');
+            $userName = new \UserNames\Entity\UserNames;
+            $userName->setUserName($data['o-module-usernames:username'] ?? '');
+            $errorStore = new \Omeka\Stdlib\ErrorStore;
+            $userNameAdapter->validateEntity($userName, $errorStore);
+            // Only the user name is validated here.
+            $errors = $errorStore->getErrors();
+            if (!empty($errors['o-module-usernames:username'])) {
+                // TODO Return only the first error currently.
+                return $this->returnError(
+                    $this->translate(reset($errors['o-module-usernames:username']))
+                );
+            }
+            $userInfo['o-module-usernames:username'] = $data['o-module-usernames:username'];
+        }
+
+        // Check the creation of the user to manage the creation of usernames:
+        // the exception occurs in api.create.post, so user is created.
         /** @var \Omeka\Entity\User $user */
-        $user = $response->getContent()->getEntity();
+        try {
+            $user = $this->api()->create('users', $userInfo, [], ['responseContent' => 'resource'])->getContent();
+        } catch (\Omeka\Api\Exception\PermissionDeniedException $e) {
+            // This is the exception thrown by the module UserNames, so the user
+            // is created, but not the username.
+            // Anonymous user cannot read User, so use entity manager.
+            $user = $this->entityManager->getRepository(User::class)->findOneBy([
+                'email' => $userInfo['o:email'],
+            ]);
+            // An error occurred in another module.
+            if (!$user) {
+                return $this->returnError(
+                    $this->translate('Unknown error before creation of user.'), // @translate
+                    Response::STATUS_CODE_500
+                );
+            }
+            if ($this->hasModuleUserNames()) {
+                // Check the user for security.
+                // If existing, it will be related to a new version of module UserNames.
+                $userNames = $this->api()->search('usernames', ['user' => $user->getId()])->getContent();
+                if (!$userNames) {
+                    // Create the username via the entity manager because the
+                    // user is not logged, so no right.
+                    $userName = new \UserNames\Entity\UserNames;
+                    $userName->setUser($user);
+                    $userName->setUserName($userInfo['o-module-usernames:username']);
+                    $this->entityManager->persist($userName);
+                    $this->entityManager->flush();
+                }
+            } else {
+                // Issue in another module?
+                // Log error, but continue registering (email is checked before,
+                // so it is a new user in any case).
+                $this->logger()->err(sprintf('An error occurred after creation of the guest user: %s', $e)); // @translate
+            }
+            // TODO Check for another exception at the same time…
+        } catch (\Exception $e) {
+            $this->logger()->err($e);
+            $user = $this->entityManager->getRepository(User::class)->findOneBy([
+                'email' => $userInfo['o:email'],
+            ]);
+            if (!$user) {
+                return $this->returnError(
+                    $this->translate('Unknown error during creation of user.'), // @translate
+                    Response::STATUS_CODE_500
+                );
+            }
+            // Issue in another module?
+            // Log error, but continue registering (email is checked before,
+            // so it is a new user in any case).
+        }
+
         $user->setPassword($data['password']);
         $user->setRole(\Guest\Permissions\Acl::ROLE_GUEST);
         // The account is active, but not confirmed, so login is not possible.
@@ -536,7 +599,7 @@ class ApiController extends \Omeka\Controller\ApiController
         // Set the current site, disabled in api.
         $this->getPluginManager()->get('currentSite')->setSite($site);
 
-        if ($emailIsValid) {
+        if ($emailIsAlwaysValid) {
             $this->entityManager->flush();
             $guestToken = null;
         } else {
@@ -572,7 +635,7 @@ class ApiController extends \Omeka\Controller\ApiController
             );
         }
 
-        if ($emailIsValid) {
+        if ($emailIsAlwaysValid) {
             $message = $this->settings()->get('guestapi_message_confirm_register')
                 ?: $this->translate('Thank you for registering. You can now log in and use the library.'); // @translate
         } else {
@@ -1066,5 +1129,20 @@ class ApiController extends \Omeka\Controller\ApiController
     protected function getConfig()
     {
         return $this->config;
+    }
+
+    protected function hasModuleUserNames(): bool
+    {
+        static $hasModule = null;
+        if (is_null($hasModule)) {
+            // A quick way to check the module without services.
+            try {
+                $this->api()->search('usernames', ['limit' => 1])->getTotalResults();
+                $hasModule = true;
+            } catch (\Exception $e) {
+                $hasModule = false;
+            }
+        }
+        return $hasModule;
     }
 }
