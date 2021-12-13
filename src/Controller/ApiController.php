@@ -277,8 +277,30 @@ class ApiController extends \Omeka\Controller\ApiController
             $result = $this->passwordAuthenticationService
                 ->authenticate();
             if (!$result->isValid()) {
+                // Check if the user is under moderation in order to add a message.
+                if (!$this->isOpenRegister()) {
+                    /** @var \Omeka\Entity\User $user */
+                    $user = $this->entityManager->getRepository(User::class)->findOneBy([
+                        'email' => $validatedData['email'],
+                    ]);
+                    if ($user) {
+                        $guestToken = $entityManager->getRepository(GuestToken::class)
+                            ->findOneBy(['email' => $validatedData['email']], ['id' => 'DESC']);
+                        if (empty($guestToken) || $guestToken->isConfirmed()) {
+                            if (!$user->isActive()) {
+                                return $this->returnError(
+                                    $this->translate('Your account is under moderation for opening.') // @translate
+                                );
+                            }
+                        } else {
+                            return $this->returnError(
+                                $this->translate('Check your email to confirm your registration.') // @translate
+                            );
+                        }
+                    }
+                }
                 return $this->returnError(
-                    $this->translate('Wrong email or password.') // @translate
+                    $this->translate(reset($result->getMessages())) // @translate
                 );
             }
         } else {
@@ -562,7 +584,8 @@ class ApiController extends \Omeka\Controller\ApiController
         // The account is active, but not confirmed, so login is not possible.
         // Guest user has no right to set active his account.
         // Except if the option "email is valid" is set.
-        $user->setIsActive(true);
+        $isOpenRegister = $this->isOpenRegister();
+        $user->setIsActive($isOpenRegister);
 
         $id = $user->getId();
         if (!empty($data['user-settings'])) {
@@ -638,9 +661,12 @@ class ApiController extends \Omeka\Controller\ApiController
         if ($emailIsAlwaysValid) {
             $message = $this->settings()->get('guestapi_message_confirm_register')
                 ?: $this->translate('Thank you for registering. You can now log in and use the library.'); // @translate
-        } else {
+        } elseif ($this->isOpenRegister()) {
             $message = $this->settings()->get('guestapi_message_confirm_register')
                 ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, you will be able to log in.'); // @translate
+        } else {
+            $message = $this->settings()->get('guestapi_message_confirm_register')
+                ?: $this->translate('Thank you for registering. Please check your email for a confirmation message. Once you have confirmed your request, a moderator will confirm registration.'); // @translate
         }
 
         $result = [
@@ -652,6 +678,8 @@ class ApiController extends \Omeka\Controller\ApiController
         ];
         return new ApiJsonModel($result, $this->getViewOptions());
     }
+
+    // TODO Confirmation through api, not via module guest user (but the email link is always a web page!)
 
     /**
      * Check cors and prepare the response.
@@ -704,6 +732,16 @@ class ApiController extends \Omeka\Controller\ApiController
     protected function isUserLogged()
     {
         return $this->authenticationService->hasIdentity();
+    }
+
+    /**
+     * Check if the registering is open or moderated.
+     *
+     *  @return bool True if open, false if moderated (or closed).
+     */
+    protected function isOpenRegister()
+    {
+        return $this->settings()->get('guestapi_open') === 'open';
     }
 
     /**
