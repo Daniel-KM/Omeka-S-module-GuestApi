@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace GuestApi\Service\Form;
 
 use GuestApi\Form\ConfigForm;
@@ -18,8 +19,8 @@ class ConfigFormFactory implements FactoryInterface
             $roles[$role] = $roleLabels[$role] ?? $role;
         }
 
-        $form = new ConfigForm(null, $options);
-        $form->setRoles($roles);
-        return $form;
+        $form = new ConfigForm(null, $options ?? []);
+        return $form
+            ->setRoles($roles);
     }
 }

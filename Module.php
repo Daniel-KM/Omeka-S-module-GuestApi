@@ -17,7 +17,9 @@ class Module extends AbstractModule
 {
     const NAMESPACE = __NAMESPACE__;
 
-    protected $dependency = 'Guest';
+    protected $dependencies = [
+        'Guest',
+    ];
 
     /**
      * {@inheritDoc}
@@ -30,7 +32,7 @@ class Module extends AbstractModule
 
         // Manage the dependency upon Guest, in particular when upgrading.
         // Once disabled, this current method and other ones are no more called.
-        if (!$this->isModuleActive($this->dependency)) {
+        if (!$this->isModuleActive('Guest')) {
             $this->disableModule(__NAMESPACE__);
             return;
         }

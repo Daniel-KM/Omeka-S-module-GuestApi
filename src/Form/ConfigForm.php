@@ -155,13 +155,13 @@ https://example.org',
         ;
     }
 
-    public function setRoles(array $roles)
+    public function setRoles(array $roles): self
     {
         $this->roles = $roles;
         return $this;
     }
 
-    protected function getRoles()
+    protected function getRoles(): array
     {
         return $this->roles;
     }
