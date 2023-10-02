@@ -933,7 +933,11 @@ class ApiController extends \Omeka\Controller\ApiController
             );
         }
 
-        $existUser = $this->api()->searchOne('users', ['email' => $email])->getContent();
+        try {
+            $existUser = $this->api()->read('users', ['email' => $email])->getContent();
+        } catch (\Exception $e) {
+            $existUser = null;
+        }
         if ($existUser) {
             // Avoid a hack of the database.
             sleep(1);
