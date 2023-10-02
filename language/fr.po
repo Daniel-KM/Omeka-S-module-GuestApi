@@ -3,116 +3,121 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-10-02 00:00+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2023-10-02 00:00+0000\n"
+"Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
+"Language-Team: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: data/scripts/upgrade.php:36
 #, php-format
 msgid "This module requires the module \"%s\", version %s or above."
-msgstr ""
+msgstr "Ce module requiert le module « %s », version « %s » ou supérieur."
 
 #: src/Controller/ApiController.php:86 src/Controller/ApiController.php:118
 #: src/Controller/ApiController.php:138 src/Controller/ApiController.php:373
 #: src/Controller/ApiController.php:397 src/Controller/ApiController.php:706
 msgid "Access forbidden."
-msgstr ""
+msgstr "Accès interdit."
 
 #: src/Controller/ApiController.php:100 src/Controller/ApiController.php:108
 #: src/Controller/ApiController.php:128 src/Controller/ApiController.php:148
 #: src/Controller/ApiController.php:156 src/Controller/ApiController.php:164
 #: src/Controller/ApiController.php:172 src/Controller/ApiController.php:180
 msgid "Method Not Allowed"
-msgstr ""
+msgstr "Méthode non autorisée"
 
 #: src/Controller/ApiController.php:211
 msgid "User cannot login: already logged."
-msgstr ""
+msgstr "L’utilisateur ne peut pas se connecter : il est déjà connecté."
 
 #: src/Controller/ApiController.php:227 src/Controller/ApiController.php:446
 msgid "Email is required."
-msgstr ""
+msgstr "Un courriel est requis."
 
 #: src/Controller/ApiController.php:233 src/Controller/ApiController.php:452
 msgid "Invalid email."
-msgstr ""
+msgstr "Mail incorrect."
 
 #: src/Controller/ApiController.php:239
 msgid "Password is required."
-msgstr ""
+msgstr "Le mot de passe est nécessaire."
 
 #: src/Controller/ApiController.php:252 src/Controller/ApiController.php:259
 msgid "Wrong email or password."
-msgstr ""
+msgstr "Mail ou mot de passe incorrect."
 
 #: src/Controller/ApiController.php:267
 #, php-format
 msgid "Role \"%s\" is not allowed to login via api."
-msgstr ""
+msgstr "Le rôle « %s » n’est pas autorisé à se connecter via l’api."
 
 #: src/Controller/ApiController.php:292
 msgid "Your account is under moderation for opening."
-msgstr ""
+msgstr "Votre compte est en cours de modération pour l’ouverture."
 
 #: src/Controller/ApiController.php:297 src/Controller/ApiController.php:500
 msgid "Check your email to confirm your registration."
-msgstr ""
+msgstr "Vérifiez vos mails pour confirmer l’inscription."
 
 #: src/Controller/ApiController.php:335
 msgid "User not logged."
-msgstr ""
+msgstr "Utilisateur non connecté."
 
 #: src/Controller/ApiController.php:354
 msgid "Successfully logout."
-msgstr ""
+msgstr "Déconnecté avec succès."
 
 #: src/Controller/ApiController.php:404
 msgid "User cannot register: already logged."
-msgstr ""
+msgstr "L’utilisateur ne peut pas s’inscrire : il est déjà connecté."
 
 #: src/Controller/ApiController.php:427
 msgid "A site is required to register."
-msgstr ""
+msgstr "Un site est nécessaire pour s’inscrire."
 
 #: src/Controller/ApiController.php:439
 msgid "The site doesn’t exist."
-msgstr ""
+msgstr "Le site n’existe pas."
 
 #: src/Controller/ApiController.php:483 src/Controller/ApiController.php:494
 msgid "Already registered."
-msgstr ""
+msgstr "Déjà enregistré."
 
 #: src/Controller/ApiController.php:542
 msgid "Unknown error before creation of user."
-msgstr ""
+msgstr "Erreur inconnue avant la création de l’utilisateur."
 
 #: src/Controller/ApiController.php:573
 msgid "Unknown error during creation of user."
-msgstr ""
+msgstr "Erreur inconnue lors de la création de l’utilisateur."
 
 #: src/Controller/ApiController.php:656 src/Controller/ApiController.php:960
 msgid "An error occurred when the email was sent."
-msgstr ""
+msgstr "Une erreur est survenue lorsque le mail a été envoyé."
 
 #: src/Controller/ApiController.php:663
 msgid "Thank you for registering. You can now log in and use the library."
 msgstr ""
+"Merci pour votre inscription. Vous pouvez maintenant vous connecter et "
+"utiliser la bibliothèque."
 
 #: src/Controller/ApiController.php:666
 msgid ""
 "Thank you for registering. Please check your email for a confirmation "
 "message. Once you have confirmed your request, you will be able to log in."
 msgstr ""
+"Merci de vous être enregistré. Veuillez vérifier votre courrier électronique "
+"pour le message de confirmation. Une fois la confirmation faite, vous "
+"pourrez vous connecter."
 
 #: src/Controller/ApiController.php:669
 msgid ""
@@ -120,100 +125,111 @@ msgid ""
 "message. Once you have confirmed your request, a moderator will confirm "
 "registration."
 msgstr ""
+"Merci de votre inscription. Merci de vérifier votre mail pour le message de "
+"confirmation. Une fois l’inscription confirmée, un modérateur la validera."
 
 #: src/Controller/ApiController.php:782
 msgid "Request is empty."
-msgstr ""
+msgstr "La requête est vide."
 
 #: src/Controller/ApiController.php:807
 msgid "Email cannot be updated: the user is not related to a site."
 msgstr ""
+"Le mail ne peut pas être mis à jour : l’utilisateur n’est pas lié à un site."
 
 #: src/Controller/ApiController.php:829
 msgid "Your request contains metadata that cannot be updated."
 msgstr ""
+"Votre requête contient des métadonnées qui ne peuvent pas être mis à jour."
 
 #: src/Controller/ApiController.php:836
 msgid "The new name is empty."
-msgstr ""
+msgstr "Le nouveau nom est vide."
 
 #: src/Controller/ApiController.php:851
 msgid "You cannot update password and another data in the same time."
 msgstr ""
+"Vous ne pouvez pas mettre à jour le mot de passe et d’autres données en même "
+"temps."
 
 #: src/Controller/ApiController.php:857
 msgid "Existing password empty."
-msgstr ""
+msgstr "Le mot de passe existant est vide."
 
 #: src/Controller/ApiController.php:863
 msgid "New password empty."
-msgstr ""
+msgstr "Nouveau mot de passe vide."
 
 #: src/Controller/ApiController.php:869
 msgid "New password should have 6 characters or more."
-msgstr ""
+msgstr "Le nouveau mot de passe doit avoir au moins six caractères."
 
 #: src/Controller/ApiController.php:877
 msgid "Wrong password."
-msgstr ""
+msgstr "Mot de passe incorrect."
 
 #: src/Controller/ApiController.php:911
 msgid "You cannot update email and another data in the same time."
 msgstr ""
+"Vous ne pouvez pas mettre à jour l’adresse mail et d’autres données en même "
+"temps."
 
 #: src/Controller/ApiController.php:917
 msgid "New email empty."
-msgstr ""
+msgstr "Nouveau mail vide."
 
 #: src/Controller/ApiController.php:924
 #, php-format
 msgid "\"%1$s\" is not an email."
-msgstr ""
+msgstr "« %1$s » n’est pas un mail."
 
 #: src/Controller/ApiController.php:931
 msgid "The new email is the same than the current one."
-msgstr ""
+msgstr "Le nouveau mail est le même que l’actuel."
 
 #: src/Controller/ApiController.php:945
 #, php-format
 msgid "The email \"%s\" is not yours."
-msgstr ""
+msgstr "Le mail « %1$s » n’est pas le vôtre."
 
 #: src/Controller/ApiController.php:968
 #, php-format
 msgid "Check your email \"%s\" to confirm the change."
-msgstr ""
+msgstr "Vérifiez votre mail « %s » pour confirmer le changement."
 
 #: src/Generic/AbstractModule.php:80 src/Generic/AbstractModule.php:88
 #: src/Generic/AbstractModule.php:890
 #, php-format
 msgid "This module requires the module \"%s\"."
-msgstr ""
+msgstr "Ce module requiert le module « %s »."
 
 #: src/Generic/AbstractModule.php:93
 #, php-format
 msgid "This module requires modules \"%s\"."
-msgstr ""
+msgstr "Ce module requiert les modules « %s »."
 
 #: src/Generic/AbstractModule.php:101
 msgid "This module has resources that cannot be installed."
-msgstr ""
+msgstr "Ce module a des ressources qui ne peuvent pas être installées."
 
 #: src/Generic/AbstractModule.php:108
 msgid ""
 "This module cannot install its tables, because they exist already. Try to "
 "remove them first."
 msgstr ""
+"Ce module ne peut pas installer ses tables car elles existent déjà. Essayez "
+"de les supprimer manuellement."
 
 #: src/Generic/AbstractModule.php:398
 #, php-format
 msgid "The module removed tables \"%s\" from a previous broken install."
 msgstr ""
+"Le module a supprimé les tables « %s » depuis une installation échouée."
 
 #: src/Generic/AbstractModule.php:885
 #, php-format
 msgid "This module requires the module \"%1$s\", version %2$s or above."
-msgstr ""
+msgstr "Ce module requiert le module « %1$s », version %2$s ou supérieure."
 
 #: src/Generic/AbstractModule.php:982
 #, php-format
@@ -221,81 +237,92 @@ msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
 "unavailable."
 msgstr ""
+"Le module « %s » a été automatiquement désactivé car ses dépendances ne sont "
+"plus disponibles."
 
 #: Module.php:63
 msgid "Guest"
-msgstr ""
+msgstr "Invité"
 
 #: src/Form/SettingsFieldset.php:20 src/Form/SettingsFieldset.php:23
 msgid "Guest Api"
-msgstr ""
+msgstr "Guest Api"
 
 #: src/Form/SettingsFieldset.php:36
 msgid "Registration via api"
-msgstr ""
+msgstr "Inscription via api"
 
 #: src/Form/SettingsFieldset.php:37
 msgid ""
 "Allow guest user registration with or without administrator approval via api."
 msgstr ""
+"Permet aux visiteurs de s’inscrire avec ou sans modération de "
+"l’administrateur via l’api."
 
 #: src/Form/SettingsFieldset.php:39
 msgid "Open to everyone"
-msgstr ""
+msgstr "Ouvert à tous"
 
 #: src/Form/SettingsFieldset.php:41
 msgid "Closed to visitors"
-msgstr ""
+msgstr "Fermé aux visiteurs"
 
 #: src/Form/SettingsFieldset.php:54
 msgid "Requires a site to register via api"
-msgstr ""
+msgstr "Nécessite un site pour s’inscrire via l’api"
 
 #: src/Form/SettingsFieldset.php:55
 msgid ""
 "If checked, a site id or slug will be required when registering via api. "
 "Note: when this setting is set, all previous users must be added to a site."
 msgstr ""
+"Si coché, l’id ou le chemin du site seront nécessaire pour s’inscrire via "
+"l’api. Note : quand ce paramètre est actif, tous les utilisateurs existants "
+"doivent être ajouté à un site."
 
 #: src/Form/SettingsFieldset.php:66
 msgid "Validate email set by api"
-msgstr ""
+msgstr "Validation du mail indiqué par l’api"
 
 #: src/Form/SettingsFieldset.php:67
 msgid ""
 "If checked, the user won’t have to validate his email, so he will be able to "
 "login directly."
 msgstr ""
+"Si coché, l’utilisateur ne devra pas valider son mail et pourra donc se "
+"connecter directement."
 
 #: src/Form/SettingsFieldset.php:78
 msgid "Message to confirm registration via api"
-msgstr ""
+msgstr "Message de confirmation de l’inscription via l’api"
 
 #: src/Form/SettingsFieldset.php:79
 msgid "The text of the response to confirm the registration via api."
-msgstr ""
+msgstr "Le texte de la réponse pour confirmer l’inscription via l’api."
 
 #: src/Form/SettingsFieldset.php:91
 msgid "Subject of message to confirm registration via api"
-msgstr ""
+msgstr "Le sujet du message de confirmation de l’inscription via l’api"
 
 #: src/Form/SettingsFieldset.php:92
 msgid "The subject of the email to confirm the registration via api."
-msgstr ""
+msgstr "Le sujet du mail confirmant l’inscription via l’api."
 
 #: src/Form/SettingsFieldset.php:96 config/module.config.php:98
 msgid "Welcome to {main_title}!"
-msgstr ""
+msgstr "Bienvenue sur {main_title} !"
 
 #: src/Form/SettingsFieldset.php:104
 msgid "Email sent to confirm registration via api (html)"
-msgstr ""
+msgstr "Mail envoyé pour confirmé l’inscription via l’api (html)"
 
 #: src/Form/SettingsFieldset.php:105
 msgid ""
 "The text of the email to confirm a registration done via email and to send "
 "the token."
 msgstr ""
+"Le texte du mail confirmant l’inscription réalisée par mail et permettant "
+"d’envoyer le jeton."
 
 #: src/Form/SettingsFieldset.php:109
 msgid ""
@@ -307,16 +334,25 @@ msgid ""
 "    <p>If you did not request to join {main_title} please disregard this "
 "email.</p>"
 msgstr ""
+"<p>Bonjour {user_name},</p>\n"
+"<p>Vous vous êtes enregistré pour un compte sur {main_title} / {site_title} "
+"({site_url}).</p>\n"
+"<p>Merci de confirmer votre enregistrement en suivant ce lien : {token_url}."
+"</p>\n"
+"<p>Si vous n’avez pas demandé de rejoindre {main_title}, merci d’ignorer ce "
+"message.</p>"
 
 #: src/Form/SettingsFieldset.php:120
 msgid "Email sent to confirm registration via api (text)"
-msgstr ""
+msgstr "Mail envoyé pour confirmé l’inscription via l’api (texte)"
 
 #: src/Form/SettingsFieldset.php:121
 msgid ""
 "The text version of the mail above. When the two version are filled, they "
 "are sent both."
 msgstr ""
+"La version texte du mail ci-dessus. Quand les deux versions sont présentes, "
+"les deux sont envoyées."
 
 #: src/Form/SettingsFieldset.php:125
 msgid ""
@@ -326,57 +362,66 @@ msgid ""
 "    Please confirm your registration by following this link: {token_url}.\n"
 "    If you did not request to join {main_title} please disregard this email."
 msgstr ""
+"Bonjour {user_name},\n"
+"Vous vous êtes enregistré pour créer un compte sur {main_title} / "
+"{site_title} ({site_url}).\n"
+"Merci de confirmer votre inscription en suivant le lien suivant : "
+"{token_url}.\n"
+"Si vous n’avez pas demandé de rejoindre {main_title}, merci d’ignorer ce "
+"message."
 
 #: src/Form/SettingsFieldset.php:136
 msgid "Roles that can login"
-msgstr ""
+msgstr "Rôles qui peuvent se connecter"
 
 #: src/Form/SettingsFieldset.php:137
 msgid "To allow full access via api increases risks of intrusion."
-msgstr ""
+msgstr "Autoriser les accès à tous via l’api augmente les risques d’intrusion."
 
 #: src/Form/SettingsFieldset.php:147
 msgid "Select roles…"
-msgstr ""
+msgstr "Choisir des rôles…"
 
 #: src/Form/SettingsFieldset.php:155
 msgid "Create a local session cookie"
-msgstr ""
+msgstr "Créer un cookie de session locale"
 
 #: src/Form/SettingsFieldset.php:156
 msgid ""
 "If checked, a session cookie will be created, so the user will be able to "
 "login in Omeka from an other web app."
 msgstr ""
+"Si coché, un cookie de session sera créé et l’utilisateur pourra donc se "
+"connecter à Omeka à partir d’une autre application web."
 
 #: src/Form/SettingsFieldset.php:167
 msgid "Limit access to these domains (cors)"
-msgstr ""
+msgstr "Limiter l’accès à certains domaines (cors)"
 
 #: src/Controller/ApiController.php:563
 #, php-format
 msgid "An error occurred after creation of the guest user: %s"
-msgstr ""
+msgstr "Une erreur est survenue après la création de l’utilisateur : %s"
 
 #: src/Controller/ApiController.php:1076
 msgid "Missing site."
-msgstr ""
+msgstr "Site manquant."
 
 #: src/Controller/ApiController.php:1107
 msgid "Your request to join {main_title} / {site_title}"
-msgstr ""
+msgstr "Votre requête pour rejoindre {main_title} / {site_title}"
 
 #: src/Controller/ApiController.php:1113
 msgid "Update email on {main_title} / {site_title}"
-msgstr ""
+msgstr "Mettre à jour le mail sur {main_title} / {site_title}"
 
 #: src/Controller/ApiController.php:1134
 msgid "[No subject]"
-msgstr ""
+msgstr "[Pas de sujet]"
 
 #: src/Controller/ApiController.php:1135
 msgid "[No message]"
-msgstr ""
+msgstr "[Pas de message]"
 
 #: config/module.config.php:100
 msgid ""
@@ -388,6 +433,13 @@ msgid ""
 "<p>If you did not request to join {main_title} please disregard this email.</"
 "p>"
 msgstr ""
+"<p>Bonjour {user_name},</p>\n"
+"<p>Vous vous êtes enregistré pour un compte sur {main_title} / {site_title} "
+"({site_url}).</p>\n"
+"<p>Merci de confirmer votre enregistrement en suivant ce lien : {token_url}."
+"</p>\n"
+"<p>Si vous n’avez pas demandé de rejoindre {main_title}, merci d’ignorer ce "
+"message.</p>"
 
 #: config/module.config.php:104
 msgid ""
@@ -397,3 +449,10 @@ msgid ""
 "Please confirm your registration by following this link: {token_url}.\n"
 "If you did not request to join {main_title} please disregard this email."
 msgstr ""
+"Bonjour {user_name},\n"
+"Vous vous êtes enregistré pour créer un compte sur {main_title} / "
+"{site_title} ({site_url}).\n"
+"Merci de confirmer votre inscription en suivant le lien suivant : "
+"{token_url}.\n"
+"Si vous n’avez pas demandé de rejoindre {main_title}, merci d’ignorer ce "
+"message."
