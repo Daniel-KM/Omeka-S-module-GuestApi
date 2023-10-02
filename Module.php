@@ -21,6 +21,14 @@ class Module extends AbstractModule
         'Guest',
     ];
 
+    protected function postInstall(): void
+    {
+        // Upgrade from GuestUserApi, if old settings are present.
+        // Old settings are renamed from "guestuserapi_*" to "guestuser_*".
+        $filepath = $this->modulePath() . '/data/install/install_post.sql';
+        $this->execSqlFromFile($filepath);
+    }
+
     /**
      * {@inheritDoc}
      * @see \Omeka\Module\AbstractModule::onBootstrap()
@@ -38,14 +46,6 @@ class Module extends AbstractModule
         }
 
         $this->addAclRoleAndRules();
-    }
-
-    protected function postInstall(): void
-    {
-        // Upgrade from GuestUserApi, if old settings are present.
-        // Old settings are renamed from "guestuserapi_*" to "guestuser_*".
-        $filepath = $this->modulePath() . '/data/install/install_post.sql';
-        $this->execSqlFromFile($filepath);
     }
 
     /**
@@ -138,6 +138,12 @@ class Module extends AbstractModule
             \Omeka\Api\Adapter\UserAdapter::class,
             'api.update.post',
             [$this, 'handleUserPost']
+        );
+
+        $sharedEventManager->attach(
+            \Omeka\Form\SettingForm::class,
+            'form.add_elements',
+            [$this, 'handleMainSettings']
         );
     }
 

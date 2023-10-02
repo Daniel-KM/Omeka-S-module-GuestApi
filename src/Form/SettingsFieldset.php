@@ -2,25 +2,37 @@
 
 namespace GuestApi\Form;
 
-use GuestApi\Form\Element\OptionalSelect;
+use GuestApi\Form\Element as GuestApiElement;
 use Laminas\Form\Element;
 use Laminas\Form\Form;
-use Omeka\Form\Element\ArrayTextarea;
+use Omeka\Form\Element as OmekaElement;
 
-class ConfigForm extends Form
+class SettingsFieldset extends Form
 {
     /**
      * @var array
      */
     protected $roles;
 
+    /**
+     * @var string
+     */
+    protected $label = 'Guest Api'; // @translate
+
+    protected $elementGroups = [
+        'guestapi' => 'Guest Api', // @translate
+    ];
+
     public function init(): void
     {
         $this
-            ->add([
+        ->setAttribute('id', 'guestapi')
+        ->setOption('element_groups', $this->elementGroups)
+        ->add([
                 'name' => 'guestapi_open',
                 'type' => Element\Radio::class,
                 'options' => [
+                    'element_group' => 'guestapi',
                     'label' => 'Registration via api', // @translate
                     'info' => 'Allow guest user registration with or without administrator approval via api.', // @translate
                     'value_options' => [
@@ -38,6 +50,7 @@ class ConfigForm extends Form
                 'name' => 'guestapi_register_site',
                 'type' => Element\Checkbox::class,
                 'options' => [
+                    'element_group' => 'guestapi',
                     'label' => 'Requires a site to register via api', // @translate
                     'info' => 'If checked, a site id or slug will be required when registering via api. Note: when this setting is set, all previous users must be added to a site.', // @translate
                 ],
@@ -49,6 +62,7 @@ class ConfigForm extends Form
                 'name' => 'guestapi_register_email_is_valid',
                 'type' => Element\Checkbox::class,
                 'options' => [
+                    'element_group' => 'guestapi',
                     'label' => 'Validate email set by api', // @translate
                     'info' => 'If checked, the user won’t have to validate his email, so he will be able to login directly.', // @translate
                 ],
@@ -60,6 +74,7 @@ class ConfigForm extends Form
                 'name' => 'guestapi_message_confirm_register',
                 'type' => Element\Textarea::class,
                 'options' => [
+                    'element_group' => 'guestapi',
                     'label' => 'Message to confirm registration via api', // @translate
                     'info' => 'The text of the response to confirm the registration via api.', // @translate
                 ],
@@ -72,6 +87,7 @@ class ConfigForm extends Form
                 'name' => 'guestapi_message_confirm_registration_subject',
                 'type' => Element\Text::class,
                 'options' => [
+                    'element_group' => 'guestapi',
                     'label' => 'Subject of message to confirm registration via api', // @translate
                     'info' => 'The subject of the email to confirm the registration via api.', // @translate
                 ],
@@ -84,6 +100,7 @@ class ConfigForm extends Form
                 'name' => 'guestapi_message_confirm_registration',
                 'type' => Element\Textarea::class,
                 'options' => [
+                    'element_group' => 'guestapi',
                     'label' => 'Email sent to confirm registration via api (html)', // @translate
                     'info' => 'The text of the email to confirm a registration done via email and to send the token.', // @translate
                 ],
@@ -99,6 +116,7 @@ class ConfigForm extends Form
                 'name' => 'guestapi_message_confirm_registration_text',
                 'type' => Element\Textarea::class,
                 'options' => [
+                    'element_group' => 'guestapi',
                     'label' => 'Email sent to confirm registration via api (text)', // @translate
                     'info' => 'The text version of the mail above. When the two version are filled, they are sent both.', // @translate
                 ],
@@ -112,8 +130,9 @@ class ConfigForm extends Form
             ])
             ->add([
                 'name' => 'guestapi_login_roles',
-                'type' => OptionalSelect::class,
+                'type' => GuestApiElement\OptionalSelect::class,
                 'options' => [
+                    'element_group' => 'guestapi',
                     'label' => 'Roles that can login', // @translate
                     'info' => 'To allow full access via api increases risks of intrusion.', // @translate
                     'empty_option' => '',
@@ -132,6 +151,7 @@ class ConfigForm extends Form
                 'name' => 'guestapi_login_session',
                 'type' => Element\Checkbox::class,
                 'options' => [
+                    'element_group' => 'guestapi',
                     'label' => 'Create a local session cookie', // @translate
                     'info' => 'If checked, a session cookie will be created, so the user will be able to login in Omeka from an other web app.', // @translate
                 ],
@@ -141,8 +161,9 @@ class ConfigForm extends Form
             ])
             ->add([
                 'name' => 'guestapi_cors',
-                'type' => ArrayTextarea::class,
+                'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
+                    'element_group' => 'guestapi',
                     'label' => 'Limit access to these domains (cors)', // @translate
                 ],
                 'attributes' => [

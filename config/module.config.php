@@ -13,7 +13,7 @@ return [
             Form\Element\OptionalSelect::class => Form\Element\OptionalSelect::class,
         ],
         'factories' => [
-            Form\ConfigForm::class => Service\Form\ConfigFormFactory::class,
+            Form\SettingsFieldset::class => Service\Form\SettingsFieldsetFactory::class,
         ],
     ],
     'controllers' => [

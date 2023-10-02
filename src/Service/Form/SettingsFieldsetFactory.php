@@ -2,11 +2,11 @@
 
 namespace GuestApi\Service\Form;
 
-use GuestApi\Form\ConfigForm;
+use GuestApi\Form\SettingsFieldset;
 use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
-class ConfigFormFactory implements FactoryInterface
+class SettingsFieldsetFactory implements FactoryInterface
 {
     public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
@@ -19,7 +19,7 @@ class ConfigFormFactory implements FactoryInterface
             $roles[$role] = $roleLabels[$role] ?? $role;
         }
 
-        $form = new ConfigForm(null, $options ?? []);
+        $form = new SettingsFieldset(null, $options ?? []);
         return $form
             ->setRoles($roles);
     }
