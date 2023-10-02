@@ -281,11 +281,11 @@ class ApiController extends \Omeka\Controller\ApiController
                 if (!$this->isOpenRegister()) {
                     /** @var \Omeka\Entity\User $user */
                     $user = $this->entityManager->getRepository(User::class)->findOneBy([
-                        'email' => $validatedData['email'],
+                        'email' => $data['email'],
                     ]);
                     if ($user) {
-                        $guestToken = $entityManager->getRepository(GuestToken::class)
-                            ->findOneBy(['email' => $validatedData['email']], ['id' => 'DESC']);
+                        $guestToken = $this->entityManager->getRepository(GuestToken::class)
+                            ->findOneBy(['email' => $data['email']], ['id' => 'DESC']);
                         if (empty($guestToken) || $guestToken->isConfirmed()) {
                             if (!$user->isActive()) {
                                 return $this->returnError(
