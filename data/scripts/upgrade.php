@@ -34,7 +34,7 @@ if (version_compare($oldVersion, '3.3.3.3.3', '<')) {
         $translator = $services->get('MvcTranslator');
         $message = new \Omeka\Stdlib\Message(
             $translator->translate('This module requires the module "%s", version %s or above.'), // @translate
-            'Generic', '3.3.27'
+            'Generic', '3.4.43'
         );
         throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
     }
