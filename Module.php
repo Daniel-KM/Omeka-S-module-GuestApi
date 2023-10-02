@@ -69,6 +69,17 @@ class Module extends AbstractModule
                     ]
                 );
         }
+        if (!$acl->hasRole('guest_private')) {
+            $acl
+                ->addRole('guest_private')
+                ->deny(
+                    'guest_private',
+                    [
+                        'Omeka\Controller\SiteAdmin\Index',
+                        'Omeka\Controller\SiteAdmin\Page',
+                    ]
+                );
+        }
 
         $settings = $services->get('Omeka\Settings');
         $isApiOpenRegister = $settings->get('guestapi_open', 'moderate');
