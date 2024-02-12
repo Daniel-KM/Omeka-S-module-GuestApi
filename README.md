@@ -1,6 +1,10 @@
 Guest Api (module for Omeka S)
 ==============================
 
+> ***IMPORTANT***: This module is deprecated and its features were integrated
+> in the module [Guest] since version 3.4.21 and it won’t be updated any more.
+> The upgrade from it is automatic.
+
 > __New versions of this module and support for Omeka S version 3.0 and above
 > are available on [GitLab], which seems to respect users and privacy better
 > than the previous repository.__
@@ -122,7 +126,7 @@ altered, and that no provisions are either added or removed herefrom.
 Copyright
 ---------
 
-* Copyright Daniel Berthereau, 2019-2023 (see [Daniel-KM] on GitLab)
+* Copyright Daniel Berthereau, 2019-2024 (see [Daniel-KM] on GitLab)
 
 
 [Guest Api]: https://gitlab.com/Daniel-KM/Omeka-S-module-GuestApi

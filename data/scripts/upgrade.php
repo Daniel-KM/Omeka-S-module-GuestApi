@@ -19,6 +19,7 @@ use Omeka\Stdlib\Message;
 $plugins = $services->get('ControllerPluginManager');
 $api = $plugins->get('api');
 $settings = $services->get('Omeka\Settings');
+$urlPlugin = $plugins->get('url');
 $connection = $services->get('Omeka\Connection');
 $messenger = $plugins->get('messenger');
 $entityManager = $services->get('Omeka\EntityManager');
@@ -38,4 +39,16 @@ if (version_compare($oldVersion, '3.3.3.3.3', '<')) {
         );
         throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
     }
+}
+
+if (version_compare($oldVersion, '3.4.7', '<')) {
+    $message = new \Common\Stdlib\PsrMessage(
+        'The features of this module were integrated in module Guest since version 3.4.21, so check the {link_url}main settings{link_end} and uninstall it.', // @translate
+        [
+            'link_url' => sprintf('<a href="%s">', $urlPlugin->fromRoute('admin') . '/setting#guest'),
+            'link_end' => '</a>',
+        ]
+    );
+    $message->setEscapeHtml(false);
+    $messenger->addWarning($message);
 }
