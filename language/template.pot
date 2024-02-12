@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-02 00:00+0000\n"
+"POT-Creation-Date: 2024-02-12 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -184,42 +184,48 @@ msgstr ""
 msgid "Check your email \"%s\" to confirm the change."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:80 src/Generic/AbstractModule.php:88
-#: src/Generic/AbstractModule.php:890
+#: src/Generic/AbstractModule.php:67 src/Generic/AbstractModule.php:75
+#: src/Generic/AbstractModule.php:857
 #, php-format
 msgid "This module requires the module \"%s\"."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:93
+#: src/Generic/AbstractModule.php:80
 #, php-format
 msgid "This module requires modules \"%s\"."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:101
+#: src/Generic/AbstractModule.php:88
 msgid "This module has resources that cannot be installed."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:108
+#: src/Generic/AbstractModule.php:95
 msgid ""
 "This module cannot install its tables, because they exist already. Try to "
 "remove them first."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:398
+#: src/Generic/AbstractModule.php:365
 #, php-format
 msgid "The module removed tables \"%s\" from a previous broken install."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:885
+#: src/Generic/AbstractModule.php:852
 #, php-format
 msgid "This module requires the module \"%1$s\", version %2$s or above."
 msgstr ""
 
-#: src/Generic/AbstractModule.php:982
+#: src/Generic/AbstractModule.php:949
 #, php-format
 msgid ""
 "The module \"%s\" was automatically deactivated because the dependencies are "
 "unavailable."
+msgstr ""
+
+#: data/scripts/upgrade.php:45
+msgid ""
+"The features of this module were integrated in module Guest since version "
+"3.4.21, so check the {link_url}main settings{link_end} and uninstall it."
 msgstr ""
 
 #: Module.php:63
